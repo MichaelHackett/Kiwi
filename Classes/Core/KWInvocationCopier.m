@@ -11,35 +11,58 @@
 
 
 #import "KWInvocationCopier.h"
-
+#import "NSInvocation+KiwiAdditions.h"
 #import "NSMethodSignature+KiwiAdditions.h"
+#import <stdint.h>
+
+
+
+/*
+ * Returns the size (in bytes) of the largest visible argument in the given
+ * method signature, that is, ignoring the implicit +self+ and +_cmd+
+ * arguments.
+ *
+ * This is used by the NSInvocation copying code to allocate space for copying
+ * arguments other than the target and selector (which have their own getters
+ * and setters).
+ */
+NSUInteger KWMaxMethodArgumentLength(NSMethodSignature* methodSignature) {
+    NSUInteger maxLength = 0;
+    NSUInteger argumentCount = [methodSignature numberOfMessageArguments];
+    for (NSUInteger index = 0; index < argumentCount; index += 1) {
+        NSUInteger argumentLength =
+            [methodSignature messageArgumentLengthAtIndex:index];
+        if (argumentLength > maxLength) {
+            maxLength = argumentLength;
+        }
+    }
+    return maxLength;
+}
 
 NS_RETURNS_RETAINED
 NSInvocation* KWCopyInvocation(NSInvocation* original) {
-  NSMethodSignature* methodSignature = original.methodSignature;
-  NSInvocation* copy =
-      [NSInvocation invocationWithMethodSignature:methodSignature];
-  [copy setTarget:[original target]];
-  [copy setSelector:[original selector]];
+    NSMethodSignature* methodSignature = original.methodSignature;
+    NSInvocation* copy =
+        [NSInvocation invocationWithMethodSignature:methodSignature];
+    [copy setTarget:[original target]];
+    [copy setSelector:[original selector]];
 
-//  NSMutableData* dataBuffer =
-//      [NSMutableData dataWithLength:KWMaxMethodArgumentLength(methodSignature)];
-//  void* argumentBuffer = [dataBuffer mutableBytes];
-//  NSUInteger argumentCount = [methodSignature numberOfArguments];
-//  for (NSUInteger argumentIndex = 0; argumentIndex < argumentCount; argumentIndex += 1) {
-//    [original getArgument:argumentBuffer atIndex:argumentIndex];
-//    [copy setArgument:argumentBuffer atIndex:argumentIndex];
-//  }
-  id argValue;
-  [original getArgument:&argValue atIndex:2];
-  [copy setArgument:&argValue atIndex:2];
+    NSUInteger maxArgLength = KWMaxMethodArgumentLength(methodSignature);
+    NSUInteger returnValueLength = [methodSignature methodReturnLength];
+    if (returnValueLength > maxArgLength) {
+        maxArgLength = returnValueLength;
+    }
 
-  //  void* argumentBuffer = malloc(sizeof(id));
-  //  [original getArgument:argumentBuffer atIndex:2];
-  //  [copy setArgument:argumentBuffer atIndex:2];
-  //  free(argumentBuffer);
-  // getArgument:atIndex:
-  // setArgument:atIndex:
-  // setReturnValue:
-  return copy;
+    NSMutableData* dataBuffer = [NSMutableData dataWithLength:maxArgLength];
+    void* argBuffer = [dataBuffer mutableBytes];
+    NSUInteger argumentCount = [methodSignature numberOfMessageArguments];
+    for (NSUInteger index = 0; index < argumentCount; index += 1) {
+        [original getMessageArgument:argBuffer atIndex:index];
+        [copy setMessageArgument:argBuffer atIndex:index];
+    }
+    [original getReturnValue:argBuffer];
+    [copy setReturnValue:argBuffer];
+
+    [copy retainArguments];
+    return copy;
 }

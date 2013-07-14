@@ -5,6 +5,7 @@
 //
 
 #import "NSMethodSignature+KiwiAdditions.h"
+#import "KWObjCUtilities.h"
 
 @implementation NSMethodSignature(KiwiAdditions)
 
@@ -16,6 +17,10 @@
 
 - (const char *)messageArgumentTypeAtIndex:(NSUInteger)anIndex {
     return [self getArgumentTypeAtIndex:anIndex + 2];
+}
+
+- (NSUInteger)messageArgumentLengthAtIndex:(NSUInteger)anIndex {
+    return KWObjCTypeLength([self messageArgumentTypeAtIndex:anIndex]);
 }
 
 @end

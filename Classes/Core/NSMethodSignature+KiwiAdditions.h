@@ -12,5 +12,6 @@
 
 - (NSUInteger)numberOfMessageArguments;
 - (const char *)messageArgumentTypeAtIndex:(NSUInteger)anIndex;
+- (NSUInteger)messageArgumentLengthAtIndex:(NSUInteger)anIndex;
 
 @end
