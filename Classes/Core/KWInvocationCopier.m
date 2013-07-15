@@ -53,16 +53,19 @@ NSInvocation* KWCopyInvocation(NSInvocation* original) {
         maxArgLength = returnValueLength;
     }
 
-    NSMutableData* dataBuffer = [NSMutableData dataWithLength:maxArgLength];
-    void* argBuffer = [dataBuffer mutableBytes];
-    NSUInteger argumentCount = [methodSignature numberOfMessageArguments];
-    for (NSUInteger index = 0; index < argumentCount; index += 1) {
-        [original getMessageArgument:argBuffer atIndex:index];
-        [copy setMessageArgument:argBuffer atIndex:index];
+    if (maxArgLength > 0) {  // skip if void method
+        NSMutableData* dataBuffer = [NSMutableData dataWithLength:maxArgLength];
+        void* argBuffer = [dataBuffer mutableBytes];
+        NSUInteger argumentCount = [methodSignature numberOfMessageArguments];
+        for (NSUInteger index = 0; index < argumentCount; index += 1) {
+            [original getMessageArgument:argBuffer atIndex:index];
+            [copy setMessageArgument:argBuffer atIndex:index];
+        }
+        if (returnValueLength > 0) {
+            [original getReturnValue:argBuffer];
+            [copy setReturnValue:argBuffer];
+        }
     }
-    [original getReturnValue:argBuffer];
-    [copy setReturnValue:argBuffer];
 
-    [copy retainArguments];
     return copy;
 }
