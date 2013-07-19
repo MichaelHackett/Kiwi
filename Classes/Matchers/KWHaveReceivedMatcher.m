@@ -20,6 +20,10 @@
 //static NSString * const CountKey = @"CountKey";
 //static NSString * const StubValueKey = @"StubValueKey";
 
+
+// TODO: Put message capturing forms in a separate category?
+
+
 @interface KWHaveReceivedMatcher ()
 
 @property (nonatomic, assign) SEL selector;
@@ -62,11 +66,15 @@
     return [spy hasReceivedMessage:self.selector];
 }
 
-#pragma mark - Getting Failure Messages
+#pragma mark - Messages
+
+- (NSString *)expectedMessagePatternAsString {
+    return NSStringFromSelector(self.selector);
+}
 
 - (NSString *)failureMessageForShould {
     return [NSString stringWithFormat:@"expected subject to have received -%@, but did not",
-                                      @"FIXME"];
+                                      [self expectedMessagePatternAsString]];
 //    return [NSString stringWithFormat:@"expected subject to have received -%@ %@, but received it %@",
 //                                      [self.messageTracker.messagePattern stringValue],
 //                                      [self.messageTracker expectedCountPhrase],
@@ -75,14 +83,15 @@
 
 - (NSString *)failureMessageForShouldNot {
     return [NSString stringWithFormat:@"expected subject not to have received -%@, but it did",
-                                      @"FIXME"];
+                                      [self expectedMessagePatternAsString]];
 //    return [NSString stringWithFormat:@"expected subject not to receive -%@, but received it %@",
 //                                      [self.messageTracker.messagePattern stringValue],
 //                                      [self.messageTracker receivedCountPhrase]];
 }
 
 - (NSString *)description {
-    return @"be awesome";
+    return [NSString stringWithFormat:@"received message %@",
+            NSStringFromSelector(self.selector)];
 }
 
 #pragma mark - Configuring Matchers

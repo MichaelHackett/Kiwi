@@ -13,22 +13,33 @@
 
 #if KW_TESTS_ENABLED
 
+@interface NSString (KWStreamlinedContainmentTestAdditions)
+- (BOOL)containsString:(NSString *)string;
+@end
+@implementation NSString (KWStreamlinedContainmentTestAdditions)
+
+- (BOOL)containsString:(NSString *)string {
+    NSRange matchRange = [self rangeOfString:string];
+    return matchRange.location != NSNotFound;
+}
+
+@end
+
+
 @interface KWHaveReceivedMatcherStringsTest : SenTestCase
 @end
 @implementation KWHaveReceivedMatcherStringsTest
 
 - (void)testItShouldHaveTheRightMatcherStrings {
     id matcherStrings = [KWHaveReceivedMatcher matcherStrings];
-    id expectedStrings = @[@"haveReceived:"];
+    id expectedStrings = @[
+        @"haveReceived:" //,
     //                         @"receive:withCount:",
     //                         @"receive:withCountAtLeast:",
     //                         @"receive:withCountAtMost:",
-    //                         @"receive:andReturn:",
-    //                         @"receive:andReturn:withCount:",
-    //                         @"receive:andReturn:withCountAtLeast:",
-    //                         @"receive:andReturn:withCountAtMost:",
     //                         @"receiveMessagePattern:countType:count:",
-    //                         @"receiveMessagePattern:andReturn:countType:count:"];
+    ];
+
     STAssertEqualObjects([matcherStrings sortedArrayUsingSelector:@selector(compare:)],
                          [expectedStrings sortedArrayUsingSelector:@selector(compare:)],
                          @"expected specific matcher strings");
@@ -60,7 +71,7 @@
 
     [self.matcher haveReceived:@selector(raiseShields)];
     STAssertTrue([self.matcher evaluate],
-                 @"expected message to have been received");
+                 @"Expected message was sent to subject.");
 }
 
 - (void)testItShouldNotMatchNonReceivedMessages {
@@ -68,7 +79,7 @@
 
     [self.matcher haveReceived:@selector(raiseShields)];
     STAssertFalse([self.matcher evaluate],
-                  @"expected message not to have been received");
+                  @"Expected message was not sent to subject.");
 }
 
 - (void)testItShouldMatchMessageReceivedAmongstOtherMessages {
@@ -79,7 +90,26 @@
 
     [self.matcher haveReceived:@selector(raiseShields)];
     STAssertTrue([self.matcher evaluate],
-                 @"expected message to have been received");
+                 @"Expected message was sent to subject.");
+}
+
+- (void)testFailureMessageShouldIncludeNameOfMethodToMatch {
+    SEL expectedSelector = @selector(raiseShields);
+    [self.matcher haveReceived:expectedSelector];
+
+    STAssertTrue([[self.matcher failureMessageForShould]
+                  containsString:NSStringFromSelector(expectedSelector)],
+                 @"Failure message does not include expected method name.");
+}
+
+- (void)testDescriptionShouldIncludeNameOfMethodToMatch {
+    SEL expectedSelector = @selector(raiseShields);
+    [self.matcher haveReceived:expectedSelector];
+
+    NSString *matchString = [NSString stringWithFormat:@"received message %@",
+                             NSStringFromSelector(expectedSelector)];
+    STAssertTrue([[self.matcher description] containsString:matchString],
+                 @"Object description does not include expected text and/or method name.");
 }
 
 @end
@@ -100,9 +130,10 @@
                                 @"KWMatcherException",
                                 @"expected exception because subject is not a KWSpy");
 }
+
 @end
 
-// capture multiple invocations of same method
+// capture multiple invocations of same method -- test by invoking method multiple times with different arguments
 // capture argument values
 
 // shouldHaveReceived will require:
