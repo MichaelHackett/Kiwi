@@ -3,6 +3,8 @@
 #import "KWSpy.h"
 #import "KWInvocationCopier.h"
 #import "KWMessagePattern.h"
+#import "NSArray+KiwiMatchAdditions.h"
+
 //#import "KWStringUtilities.h"
 
 
@@ -65,13 +67,13 @@
 - (BOOL)hasReceivedMessage:(SEL)selector {
     KWMessagePattern *messagePattern =
         [KWMessagePattern messagePatternWithSelector:selector];
-    if ([self.receivedInvocations
-         indexOfObjectPassingTest:^(id invocation, NSUInteger index, BOOL *stop) {
-        return [messagePattern matchesInvocation:invocation];
-    }] == NSNotFound) {
-        return NO;
-    }
-    return YES;
+    return [self hasReceivedInvocationMatchingMessagePattern:messagePattern];
+}
+
+- (BOOL)hasReceivedInvocationMatchingMessagePattern:(KWMessagePattern*)pattern {
+    return ([self.receivedInvocations containsObjectPassingTest:^(id invocation, NSUInteger index, BOOL *stop) {
+        return [pattern matchesInvocation:invocation];
+    }]);
 }
 
 
