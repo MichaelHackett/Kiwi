@@ -28,38 +28,18 @@
 
 @implementation KWHaveReceivedMatcher
 
-//#pragma mark - Initializing
-//
-//- (id)initWithSubject:(id)anObject {
-//  if ((self = [super initWithSubject:anObject])) {
-//    self.willEvaluateMultipleTimes = NO;
-//  }
-//
-//  return self;
-//}
-//
-// project now uses ARC, so dealloc is probably unnecessary
-//- (void)dealloc {
-//    [super dealloc];
-//}
-
-#pragma mark - Properties
-
-//@synthesize willEvaluateMultipleTimes;
+//#pragma mark - Properties
 
 #pragma mark - Getting Matcher Strings
 
 + (NSArray *)matcherStrings {
-    return @[@"haveReceived:"];//,
-//                                     @"receive:withCount:",
-//                                     @"receive:withCountAtLeast:",
-//                                     @"receive:withCountAtMost:",
-//                                     @"receive:andReturn:",
-//                                     @"receive:andReturn:withCount:",
-//                                     @"receive:andReturn:withCountAtLeast:",
-//                                     @"receive:andReturn:withCountAtMost:",
-//                                     @"receiveMessagePattern:countType:count:",
-//                                     @"receiveMessagePattern:andReturn:countType:count:"];
+    return @[
+        @"haveReceived:"
+//        @"receive:withCount:",
+//        @"receive:withCountAtLeast:",
+//        @"receive:withCountAtMost:",
+//        @"receiveMessagePattern:countType:count:"
+    ];
 }
 
 // NTS: It appears to me that -canMatchSubject: is just for selecting a
@@ -73,21 +53,13 @@
 #pragma mark - Matching
 
 - (BOOL)evaluate {
-//    if (![self.subject isKindOfClass:[KWSpy class]]) {
-//        [NSException raise:@"KWMatcherException" format:@"subject must be a KWSpy"];
-//        return NO;
-//    }
+    if (![self.subject isKindOfClass:[KWSpy class]]) {
+        [NSException raise:@"KWMatcherException" format:@"subject must be a KWSpy"];
+        return NO;
+    }
     KWSpy *spy = (KWSpy *)self.subject;
 
     return [spy hasReceivedMessage:self.selector];
-
-//    BOOL succeeded = [self.messageTracker succeeded];
-//
-//    if (!self.willEvaluateMultipleTimes) {
-//      [self.messageTracker stopTracking];
-//    }
-//    return succeeded;
-//    return YES;
 }
 
 #pragma mark - Getting Failure Messages
@@ -135,26 +107,6 @@
 //- (void)receive:(SEL)aSelector withCountAtMost:(NSUInteger)aCount {
 //    KWMessagePattern *messagePattern = [KWMessagePattern messagePatternWithSelector:aSelector];
 //    [self receiveMessagePattern:messagePattern countType:KWCountTypeAtMost count:aCount];
-//}
-//
-//- (void)receive:(SEL)aSelector andReturn:(id)aValue {
-//    KWMessagePattern *messagePattern = [KWMessagePattern messagePatternWithSelector:aSelector];
-//    [self receiveMessagePattern:messagePattern andReturn:aValue countType:KWCountTypeExact count:1];
-//}
-//
-//- (void)receive:(SEL)aSelector andReturn:(id)aValue withCount:(NSUInteger)aCount {
-//    KWMessagePattern *messagePattern = [KWMessagePattern messagePatternWithSelector:aSelector];
-//    [self receiveMessagePattern:messagePattern andReturn:aValue countType:KWCountTypeExact count:aCount];
-//}
-//
-//- (void)receive:(SEL)aSelector andReturn:(id)aValue withCountAtLeast:(NSUInteger)aCount {
-//    KWMessagePattern *messagePattern = [KWMessagePattern messagePatternWithSelector:aSelector];
-//    [self receiveMessagePattern:messagePattern andReturn:aValue countType:KWCountTypeAtLeast count:aCount];
-//}
-//
-//- (void)receive:(SEL)aSelector andReturn:(id)aValue withCountAtMost:(NSUInteger)aCount {
-//    KWMessagePattern *messagePattern = [KWMessagePattern messagePatternWithSelector:aSelector];
-//    [self receiveMessagePattern:messagePattern andReturn:aValue countType:KWCountTypeAtMost count:aCount];
 //}
 
 //- (void)receiveMessagePattern:(KWMessagePattern *)aMessagePattern countType:(KWCountType)aCountType count:(NSUInteger)aCount {
@@ -232,34 +184,6 @@
 //    [(id)self receiveMessagePattern:messagePattern countType:KWCountTypeAtMost count:aCount];
 //}
 //
-//- (void)receive:(SEL)aSelector andReturn:(id)aValue withArguments:(id)firstArgument, ... {
-//    va_list argumentList;
-//    va_start(argumentList, firstArgument);
-//    KWMessagePattern *messagePattern = [KWMessagePattern messagePatternWithSelector:aSelector firstArgumentFilter:firstArgument argumentList:argumentList];
-//    [(id)self receiveMessagePattern:messagePattern andReturn:aValue countType:KWCountTypeExact count:1];
-//}
-//
-//- (void)receive:(SEL)aSelector andReturn:(id)aValue withCount:(NSUInteger)aCount arguments:(id)firstArgument, ... {
-//    va_list argumentList;
-//    va_start(argumentList, firstArgument);
-//    KWMessagePattern *messagePattern = [KWMessagePattern messagePatternWithSelector:aSelector firstArgumentFilter:firstArgument argumentList:argumentList];
-//    [(id)self receiveMessagePattern:messagePattern andReturn:aValue countType:KWCountTypeExact count:aCount];
-//}
-//
-//- (void)receive:(SEL)aSelector andReturn:(id)aValue withCountAtLeast:(NSUInteger)aCount arguments:(id)firstArgument, ... {
-//    va_list argumentList;
-//    va_start(argumentList, firstArgument);
-//    KWMessagePattern *messagePattern = [KWMessagePattern messagePatternWithSelector:aSelector firstArgumentFilter:firstArgument argumentList:argumentList];
-//    [(id)self receiveMessagePattern:messagePattern andReturn:aValue countType:KWCountTypeAtLeast count:aCount];
-//}
-//
-//- (void)receive:(SEL)aSelector andReturn:(id)aValue withCountAtMost:(NSUInteger)aCount arguments:(id)firstArgument, ... {
-//    va_list argumentList;
-//    va_start(argumentList, firstArgument);
-//    KWMessagePattern *messagePattern = [KWMessagePattern messagePatternWithSelector:aSelector firstArgumentFilter:firstArgument argumentList:argumentList];
-//    [(id)self receiveMessagePattern:messagePattern andReturn:aValue countType:KWCountTypeAtMost count:aCount];
-//}
-//
 //#pragma mark Invocation Capturing Methods
 //
 //- (NSDictionary *)userInfoForReceiveMatcherWithCountType:(KWCountType)aCountType count:(NSUInteger)aCount {
@@ -292,26 +216,6 @@
 //
 //- (id)receiveWithCountAtMost:(NSUInteger)aCount {
 //    NSDictionary *userInfo = [self userInfoForReceiveMatcherWithCountType:KWCountTypeAtMost count:aCount];
-//    return [KWInvocationCapturer invocationCapturerWithDelegate:[KWReceiveMatcher class] userInfo:userInfo];
-//}
-//
-//- (id)receiveAndReturn:(id)aValue {
-//    NSDictionary *userInfo = [self userInfoForReceiveMatcherWithCountType:KWCountTypeExact count:1 value:aValue];
-//    return [KWInvocationCapturer invocationCapturerWithDelegate:[KWReceiveMatcher class] userInfo:userInfo];
-//}
-//
-//- (id)receiveAndReturn:(id)aValue withCount:(NSUInteger)aCount {
-//    NSDictionary *userInfo = [self userInfoForReceiveMatcherWithCountType:KWCountTypeExact count:aCount value:aValue];
-//    return [KWInvocationCapturer invocationCapturerWithDelegate:[KWReceiveMatcher class] userInfo:userInfo];
-//}
-//
-//- (id)receiveAndReturn:(id)aValue withCountAtLeast:(NSUInteger)aCount {
-//    NSDictionary *userInfo = [self userInfoForReceiveMatcherWithCountType:KWCountTypeAtLeast count:aCount value:aValue];
-//    return [KWInvocationCapturer invocationCapturerWithDelegate:[KWReceiveMatcher class] userInfo:userInfo];
-//}
-//
-//- (id)receiveAndReturn:(id)aValue withCountAtMost:(NSUInteger)aCount {
-//    NSDictionary *userInfo = [self userInfoForReceiveMatcherWithCountType:KWCountTypeAtMost count:aCount value:aValue];
 //    return [KWInvocationCapturer invocationCapturerWithDelegate:[KWReceiveMatcher class] userInfo:userInfo];
 //}
 //

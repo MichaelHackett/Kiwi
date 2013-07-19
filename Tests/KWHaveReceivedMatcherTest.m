@@ -13,61 +13,100 @@
 
 #if KW_TESTS_ENABLED
 
-@interface KWHaveReceivedMatcherTest : SenTestCase
-
+@interface KWHaveReceivedMatcherStringsTest : SenTestCase
 @end
+@implementation KWHaveReceivedMatcherStringsTest
 
-@implementation KWHaveReceivedMatcherTest
-
-//- (void)tearDown {
-//  KWClearStubsAndSpies();
-//}
 - (void)testItShouldHaveTheRightMatcherStrings {
     id matcherStrings = [KWHaveReceivedMatcher matcherStrings];
     id expectedStrings = @[@"haveReceived:"];
-//                         @"receive:withCount:",
-//                         @"receive:withCountAtLeast:",
-//                         @"receive:withCountAtMost:",
-//                         @"receive:andReturn:",
-//                         @"receive:andReturn:withCount:",
-//                         @"receive:andReturn:withCountAtLeast:",
-//                         @"receive:andReturn:withCountAtMost:",
-//                         @"receiveMessagePattern:countType:count:",
-//                         @"receiveMessagePattern:andReturn:countType:count:"];
+    //                         @"receive:withCount:",
+    //                         @"receive:withCountAtLeast:",
+    //                         @"receive:withCountAtMost:",
+    //                         @"receive:andReturn:",
+    //                         @"receive:andReturn:withCount:",
+    //                         @"receive:andReturn:withCountAtLeast:",
+    //                         @"receive:andReturn:withCountAtMost:",
+    //                         @"receiveMessagePattern:countType:count:",
+    //                         @"receiveMessagePattern:andReturn:countType:count:"];
     STAssertEqualObjects([matcherStrings sortedArrayUsingSelector:@selector(compare:)],
                          [expectedStrings sortedArrayUsingSelector:@selector(compare:)],
                          @"expected specific matcher strings");
 }
 
-// test: should only accept subjects of type KWMock, or which meet some protocol
+@end
 
-- (void)testItShouldMatchReceivedMessagesForReceive {
-    id subject = [KWSpy spyForClass:[Cruiser class]];
-    id matcher = [KWHaveReceivedMatcher matcherWithSubject:subject];
-    [subject raiseShields];
-    [matcher haveReceived:@selector(raiseShields)];
-    STAssertTrue([matcher evaluate], @"expected message to have been received");
+
+@interface KWHaveReceivedMatcherTest : SenTestCase
+@property (strong, nonatomic) Cruiser *subject;
+@property (strong, nonatomic) KWHaveReceivedMatcher *matcher;
+@end
+
+@implementation KWHaveReceivedMatcherTest
+
+- (void)setUp {
+    self.subject = [KWSpy spyForClass:[Cruiser class]];
+    self.matcher = [KWHaveReceivedMatcher matcherWithSubject:self.subject];
 }
 
-- (void)testItShouldNotMatchNonReceivedMessagesForReceive {
-    id subject = [KWSpy spyForClass:[Cruiser class]];
-    id matcher = [KWHaveReceivedMatcher matcherWithSubject:subject];
-    [subject engageHyperdrive];
-    [matcher haveReceived:@selector(raiseShields)];
-    STAssertFalse([matcher evaluate], @"expected message not to have been received");
+- (void)tearDown {
+//  KWClearStubsAndSpies();
+    self.subject = nil;
+    self.matcher = nil;
+}
+
+- (void)testItShouldMatchReceivedMessages {
+    [self.subject raiseShields];
+
+    [self.matcher haveReceived:@selector(raiseShields)];
+    STAssertTrue([self.matcher evaluate],
+                 @"expected message to have been received");
+}
+
+- (void)testItShouldNotMatchNonReceivedMessages {
+    [self.subject engageHyperdrive];
+
+    [self.matcher haveReceived:@selector(raiseShields)];
+    STAssertFalse([self.matcher evaluate],
+                  @"expected message not to have been received");
+}
+
+- (void)testItShouldMatchMessageReceivedAmongstOtherMessages {
+    [self.subject computeParsecs];
+    [self.subject engageHyperdrive];
+    [self.subject raiseShields];  // message that we're interested in
+    [self.subject fighterWithCallsign:@"A535"];
+
+    [self.matcher haveReceived:@selector(raiseShields)];
+    STAssertTrue([self.matcher evaluate],
+                 @"expected message to have been received");
 }
 
 @end
 
-// capture method invocations (multiple different methods)
+
+@interface KWHaveReceivedMatcherSubjectTypeTest : SenTestCase
+@end
+@implementation KWHaveReceivedMatcherSubjectTypeTest
+
+- (void)testItShouldRequireSubjectToBeTestSpy {
+    Cruiser *subject = [Cruiser cruiser];
+    KWHaveReceivedMatcher *matcher =
+        [KWHaveReceivedMatcher matcherWithSubject:subject];
+
+    [matcher haveReceived:@selector(raiseShields)];
+    STAssertThrowsSpecificNamed([matcher evaluate],
+                                NSException,
+                                @"KWMatcherException",
+                                @"expected exception because subject is not a KWSpy");
+}
+@end
+
 // capture multiple invocations of same method
 // capture argument values
 
 // shouldHaveReceived will require:
-// report whether invocation was received based just on message name
 // report match based on method name and arguments
 // report number of invocations matching specification
-
-// should not allow subjects that are not KWSpys
 
 #endif // #if KW_TESTS_ENABLED
