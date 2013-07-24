@@ -33,7 +33,8 @@
 - (void)testItShouldHaveTheRightMatcherStrings {
     id matcherStrings = [KWHaveReceivedMatcher matcherStrings];
     id expectedStrings = @[
-        @"haveReceived:" //,
+        @"haveReceived:",
+        @"haveReceived:withArguments:"
     //                         @"receive:withCount:",
     //                         @"receive:withCountAtLeast:",
     //                         @"receive:withCountAtMost:",
@@ -86,11 +87,33 @@
     [self.subject computeParsecs];
     [self.subject engageHyperdrive];
     [self.subject raiseShields];  // message that we're interested in
-    [self.subject fighterWithCallsign:@"A535"];
+    [self.subject fighterWithCallsign:@"Viper 1"];
 
     [self.matcher haveReceived:@selector(raiseShields)];
     STAssertTrue([self.matcher evaluate],
                  @"Expected message was sent to subject.");
+}
+
+// TODO: Test with multi-arg methods, rather than single-arg.
+
+- (void)testItShouldMatchMessageWithMatchingArguments {
+    [self.subject fighterWithCallsign:@"Viper 1"];
+
+//    [self.matcher haveReceivedMessage:[messageTo(Cruiser) fighterWithCallsign:@"Viper 1"]];
+//    [[self.matcher haveReceived] fighterWithCallsign:@"Viper 1"];
+    [self.matcher haveReceived:@selector(fighterWithCallsign:)
+                 withArguments:@[@"Viper 1"]];
+    STAssertTrue([self.matcher evaluate],
+                 @"Expected message was sent to subject with expected arguments");
+}
+
+- (void)testItShouldNotMatchMessageWithDifferentArguments {
+    [self.subject fighterWithCallsign:@"Viper 1"];
+
+    [self.matcher haveReceived:@selector(fighterWithCallsign:)
+                 withArguments:@[@"Viper 2"]];
+    STAssertFalse([self.matcher evaluate],
+                  @"Expected message was not sent to subject with expected arguments");
 }
 
 - (void)testFailureMessageShouldIncludeNameOfMethodToMatch {
@@ -133,11 +156,9 @@
 
 @end
 
-// capture multiple invocations of same method -- test by invoking method multiple times with different arguments
-// capture argument values
+// capture multiple invocations of same method
+// -- same arguments and differing arguments
 
-// shouldHaveReceived will require:
-// report match based on method name and arguments
 // report number of invocations matching specification
 
 #endif // #if KW_TESTS_ENABLED

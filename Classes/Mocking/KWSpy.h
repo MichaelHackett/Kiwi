@@ -6,6 +6,9 @@
 
 #import "KWMock.h"
 
+@class KWMessagePattern;
+
+
 @interface KWSpy : KWMock
 
 #pragma mark - Initializing
@@ -16,6 +19,7 @@
 - (void)recordInvocation:(NSInvocation *)invocation;
 
 #pragma mark - Verification
-- (BOOL)hasReceivedMessage:(SEL)selector;
+//- (BOOL)hasReceivedMessage:(SEL)selector;
+- (BOOL)hasReceivedMessageMatchingPattern:(KWMessagePattern *)messagePattern;
 
 @end

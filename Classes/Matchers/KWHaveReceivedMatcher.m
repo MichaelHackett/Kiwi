@@ -8,7 +8,7 @@
 #import "KWSpy.h"
 //#import "KWFormatter.h"
 //#import "KWInvocationCapturer.h"
-//#import "KWMessagePattern.h"
+#import "KWMessagePattern.h"
 //#import "KWMessageTracker.h"
 //#import "KWObjCUtilities.h"
 //#import "KWStringUtilities.h"
@@ -26,7 +26,8 @@
 
 @interface KWHaveReceivedMatcher ()
 
-@property (nonatomic, assign) SEL selector;
+//@property (nonatomic, assign) SEL selector;
+@property (nonatomic, strong) KWMessagePattern* messagePattern;
 
 @end
 
@@ -38,7 +39,8 @@
 
 + (NSArray *)matcherStrings {
     return @[
-        @"haveReceived:"
+        @"haveReceived:",
+        @"haveReceived:withArguments:"
 //        @"receive:withCount:",
 //        @"receive:withCountAtLeast:",
 //        @"receive:withCountAtMost:",
@@ -63,13 +65,13 @@
     }
     KWSpy *spy = (KWSpy *)self.subject;
 
-    return [spy hasReceivedMessage:self.selector];
+    return [spy hasReceivedMessageMatchingPattern:self.messagePattern];
 }
 
 #pragma mark - Messages
 
 - (NSString *)expectedMessagePatternAsString {
-    return NSStringFromSelector(self.selector);
+    return [self.messagePattern stringValue];
 }
 
 - (NSString *)failureMessageForShould {
@@ -91,13 +93,14 @@
 
 - (NSString *)description {
     return [NSString stringWithFormat:@"received message %@",
-            NSStringFromSelector(self.selector)];
+            [self expectedMessagePatternAsString]];
 }
 
 #pragma mark - Configuring Matchers
 
 - (void)haveReceived:(SEL)aSelector {
-    self.selector = aSelector;
+    [self haveReceivedMessagePattern:
+              [KWMessagePattern messagePatternWithSelector:aSelector]];
 //    KWMessagePattern *messagePattern = [KWMessagePattern messagePatternWithSelector:aSelector];
     // ask subject if it received a message
 //    [self receiveMessagePattern:messagePattern countType:KWCountTypeExact count:1];
@@ -117,6 +120,17 @@
 //    KWMessagePattern *messagePattern = [KWMessagePattern messagePatternWithSelector:aSelector];
 //    [self receiveMessagePattern:messagePattern countType:KWCountTypeAtMost count:aCount];
 //}
+
+- (void)haveReceived:(SEL)aSelector withArguments:(NSArray *)argumentFilters {
+    KWMessagePattern *messagePattern =
+        [KWMessagePattern messagePatternWithSelector:aSelector
+                                     argumentFilters:argumentFilters];
+    [self haveReceivedMessagePattern:messagePattern];
+}
+
+- (void)haveReceivedMessagePattern:(KWMessagePattern *)aMessagePattern {
+    self.messagePattern = aMessagePattern;
+}
 
 //- (void)receiveMessagePattern:(KWMessagePattern *)aMessagePattern countType:(KWCountType)aCountType count:(NSUInteger)aCount {
 ////#if KW_TARGET_HAS_INVOCATION_EXCEPTION_BUG

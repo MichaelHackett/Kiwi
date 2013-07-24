@@ -64,13 +64,13 @@
 
 #pragma mark - Verification
 
-- (BOOL)hasReceivedMessage:(SEL)selector {
-    KWMessagePattern *messagePattern =
-        [KWMessagePattern messagePatternWithSelector:selector];
-    return [self hasReceivedInvocationMatchingMessagePattern:messagePattern];
-}
+//- (BOOL)hasReceivedMessage:(SEL)selector {
+//    KWMessagePattern *messagePattern =
+//        [KWMessagePattern messagePatternWithSelector:selector];
+//    return [self hasReceivedInvocationMatchingMessagePattern:messagePattern];
+//}
 
-- (BOOL)hasReceivedInvocationMatchingMessagePattern:(KWMessagePattern*)pattern {
+- (BOOL)hasReceivedMessageMatchingPattern:(KWMessagePattern*)pattern {
     return ([self.receivedInvocations containsObjectPassingTest:^(id invocation, NSUInteger index, BOOL *stop) {
         return [pattern matchesInvocation:invocation];
     }]);
