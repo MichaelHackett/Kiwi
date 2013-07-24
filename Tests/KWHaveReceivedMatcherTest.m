@@ -5,7 +5,6 @@
 //
 
 #import "Kiwi.h"
-#import "KWHaveReceivedMatcher.h" // TODO: move this to Kiwi.h
 #import "KWSpy.h"
 #import "KiwiTestConfiguration.h"
 #import "TestClasses.h"
