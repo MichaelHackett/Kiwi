@@ -5,7 +5,6 @@
 //
 
 #import "Kiwi.h"
-#import "KWSpy.h"
 #import "KiwiTestConfiguration.h"
 #import "TestClasses.h"
 //#import "KWIntercept.h"
