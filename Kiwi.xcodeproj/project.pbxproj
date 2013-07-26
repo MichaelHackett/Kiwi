@@ -116,6 +116,7 @@
 		492F3A7A16D5F7DC008E3C49 /* KWFailureTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 492F3A7916D5F7DC008E3C49 /* KWFailureTest.m */; };
 		4BA52D0115487F0C00FC957B /* KWCaptureTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4BA52D0015487F0C00FC957B /* KWCaptureTest.m */; };
 		4C03C7A517A16DE000310C26 /* KWSpy.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4C08F3D21793079400C9C85D /* KWSpy.h */; };
+		4C03C7A717A17E4C00310C26 /* KWSpyTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C03C7A617A17E4C00310C26 /* KWSpyTest.m */; };
 		4C08F3CC1792FDD700C9C85D /* KWHaveReceivedMatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C08F3CA1792FDD700C9C85D /* KWHaveReceivedMatcher.h */; };
 		4C08F3CD1792FDD700C9C85D /* KWHaveReceivedMatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C08F3CB1792FDD700C9C85D /* KWHaveReceivedMatcher.m */; };
 		4C08F3CE1792FDF800C9C85D /* KWHaveReceivedMatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C08F3CB1792FDD700C9C85D /* KWHaveReceivedMatcher.m */; };
@@ -670,6 +671,7 @@
 		37828762177F860B00BCD40F /* Kiwi-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Kiwi-Prefix.pch"; sourceTree = "<group>"; };
 		492F3A7916D5F7DC008E3C49 /* KWFailureTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KWFailureTest.m; sourceTree = "<group>"; };
 		4BA52D0015487F0C00FC957B /* KWCaptureTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KWCaptureTest.m; sourceTree = "<group>"; };
+		4C03C7A617A17E4C00310C26 /* KWSpyTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KWSpyTest.m; sourceTree = "<group>"; };
 		4C08F3CA1792FDD700C9C85D /* KWHaveReceivedMatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KWHaveReceivedMatcher.h; sourceTree = "<group>"; };
 		4C08F3CB1792FDD700C9C85D /* KWHaveReceivedMatcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KWHaveReceivedMatcher.m; sourceTree = "<group>"; };
 		4C08F3D01792FE4800C9C85D /* KWHaveReceivedMatcherTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KWHaveReceivedMatcherTest.m; sourceTree = "<group>"; };
@@ -1353,6 +1355,7 @@
 				F51A59BE1191D45500598B04 /* KWRealObjectStubTest.m */,
 				F5C6FB1C1177CAF00068BBC8 /* KWStubTest.m */,
 				4BA52D0015487F0C00FC957B /* KWCaptureTest.m */,
+				4C03C7A617A17E4C00310C26 /* KWSpyTest.m */,
 			);
 			name = "Mocks, Stubs, and Spying";
 			sourceTree = "<group>";
@@ -2033,6 +2036,7 @@
 				4C5FCABF178C85D800D35EE1 /* KWMaxMethodArgumentLengthTest.m in Sources */,
 				4C5FCAC1178DD15600D35EE1 /* KWMethodSignatureAdditionsTest.m in Sources */,
 				4C08F3D11792FE4800C9C85D /* KWHaveReceivedMatcherTest.m in Sources */,
+				4C03C7A717A17E4C00310C26 /* KWSpyTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -13,7 +13,9 @@
 
 #pragma mark - Initializing
 - (id)initForClass:(Class)aClass;
+- (id)initForProtocol:(Protocol *)aProtocol;
 + (id)spyForClass:(Class)aClass;
++ (id)spyForProtocol:(Protocol *)aProtocol;
 
 #pragma mark - Recording messages
 - (void)recordInvocation:(NSInvocation *)invocation;

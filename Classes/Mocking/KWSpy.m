@@ -8,6 +8,16 @@
 //#import "KWStringUtilities.h"
 
 
+// NOTE: The mockedClass property does not appear to be used within Kiwi
+// outside of the KWMock class, and if the -class method was overridden
+// to return the mocked class, there would be no need to expose it as a
+// separate property at all. (It could be private to the class.) I'm not
+// sure if it's smart to override -class or not, so I'll let that stew
+// for a while, but in any case, -isKindOfClass and -isMemberOfClass
+// *have* been overridden to function based on the mocked class, so I'll
+// need to look at recommended practices to see if anyone uses -class
+// directly.
+
 @interface KWSpy ()
 //@property (nonatomic, assign, readonly) Class mockedClass;
 @property (nonatomic, strong, readonly) NSMutableArray *receivedInvocations; // array of NSInvocations
@@ -27,8 +37,55 @@
     return self;
 }
 
+- (id)initForProtocol:(Protocol *)aProtocol {
+    self = [super initAsNullMockForProtocol:aProtocol];
+    if (self) {
+//        _mockedClass = aClass;
+        _receivedInvocations = [[NSMutableArray alloc] init];
+    }
+    return self;
+}
+
+// For later, after refactoring parent class; currently, its designated
+// initializer is private, so it would be dodgy to call it from here.
+// This results in some duplication above, but it's minor thus far.
+
+//- (id)initForClass:(Class)aClass protocol:(Protocol *)aProtocol {
+//    self = [super initAsNullMock:YES
+//                        withName:nil
+//                        forClass:aClass
+//                        protocol:aProtocol];
+//    if (self) {
+//        _receivedInvocations = [[NSMutableArray alloc] init];
+//    }
+//
+//    return self;
+//}
+
+// Block all superclass constructors, except those explicitly overridden in
+// this class, by overriding the superclass designated initializer.
+//- (id)initAsNullMock:(BOOL)nullMockFlag
+//            withName:(NSString *)aName
+//            forClass:(Class)aClass
+//            protocol:(Protocol *)aProtocol
+//{
+//    [self doesNotRecognizeSelector:_cmd];
+//    return nil;
+//}
+// FIXME: Can't do this while our initializer above calls a superclass
+// initializer besides the designated initializer (because the other
+// initializer will forward to this method and generate the exception).
+// However, we run into trouble trying to call the designated initializer
+// because it's not public. In any case, this issue can be solved by
+// extracting a new common superclass (e.g. KWTestDouble) that both KWSpy
+// and KWMock can inherit from.
+
 + (id)spyForClass:(Class)aClass {
     return [[self alloc] initForClass:aClass];
+}
+
++ (id)spyForProtocol:(Protocol *)aProtocol {
+    return [[self alloc] initForProtocol:aProtocol];
 }
 
 //// Superclass designated initializer (?) -- non-public! (probably need to reconsider)
