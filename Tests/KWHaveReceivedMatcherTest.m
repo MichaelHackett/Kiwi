@@ -60,7 +60,6 @@
 }
 
 - (void)tearDown {
-//  KWClearStubsAndSpies();
     self.subject = nil;
     self.matcher = nil;
 }

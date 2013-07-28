@@ -19,6 +19,7 @@
 
 #pragma mark - Recording messages
 - (void)recordInvocation:(NSInvocation *)invocation;
+- (void)clearRecordedInvocations;  // intentionally named to avoid conflicts with mocked classes
 
 #pragma mark - Verification
 //- (BOOL)hasReceivedMessage:(SEL)selector;

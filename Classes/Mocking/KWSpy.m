@@ -118,6 +118,10 @@
     [self.receivedInvocations addObject:invocationCopy];
 }
 
+- (void)clearRecordedInvocations {
+    [self.receivedInvocations removeAllObjects];
+}
+
 
 #pragma mark - Verification
 

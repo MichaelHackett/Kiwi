@@ -11,35 +11,35 @@
 
 #if KW_TESTS_ENABLED
 
-@interface KWSpyTest : SenTestCase
+@interface KWClassSpyTest : SenTestCase
+@property (nonatomic, strong) Class mockedClass;
+@property (nonatomic, strong) id spy;
 @end
 
-@implementation KWSpyTest
-{
-    // test fixture ivars go here
+@implementation KWClassSpyTest
+
+- (void)setUp {
+    self.mockedClass = [Cruiser class];
+    self.spy = [KWSpy spyForClass:self.mockedClass];
 }
 
-- (void)testItShouldInitializeForAClass {
-    id mockedClass = [Cruiser class];
-//    id name = @"Car mock";
-    id spy = [KWSpy spyForClass:mockedClass];
-    STAssertNotNil(spy, @"expected a test spy object to be initialized");
-//    STAssertEqualObjects([spy mockedClass], mockedClass,
-//                         @"expected the mockedClass property to be set");
-//    STAssertEqualObjects([mock mockName], @"Car mock", @"expected class mock to have the correct mockName");
+- (void)tearDown {
+    self.spy = nil;
+    self.mockedClass = nil;
 }
 
-- (void)testClassSpyShouldAppearAsInstanceOfMockedClass {
-    id mockedClass = [Cruiser class];
-    id spy = [KWSpy spyForClass:mockedClass];
-    STAssertTrue([spy isMemberOfClass:mockedClass],
+- (void)testItShouldBeInitialized {
+    STAssertNotNil(self.spy, @"expected a test spy object to be initialized");
+}
+
+- (void)testItShouldAppearAsInstanceOfMockedClass {
+    STAssertTrue([self.spy isMemberOfClass:self.mockedClass],
                  @"expected test spy to appear to be instance of mocked class");
 }
 
 - (void)testItShouldNotThrowAnExceptionWhenAnUnstubbedMethodIsInvoked {
-    id spy = [KWSpy spyForClass:[Cruiser class]];
 #if KW_TARGET_HAS_INVOCATION_EXCEPTION_BUG
-    [spy computeParsecs];
+    [self.spy computeParsecs];
     STAssertNil(KWGetAndClearExceptionFromAcrossInvocationBoundary(),
                 @"expected spy to not throw exceptions for unstubbed methods");
 #else
@@ -47,6 +47,26 @@
     STAssertNoThrow([spy computeParsecs],
                     @"expected spy to not throw exceptions for unstubbed methods");
 #endif
+}
+
+- (void)testShouldRecordReceivedMessagePattern {
+    [self.spy computeParsecs];
+    KWMessagePattern *messagePattern =
+        [KWMessagePattern messagePatternWithSelector:@selector(computeParsecs)];
+    STAssertTrue([self.spy hasReceivedMessageMatchingPattern:messagePattern],
+                 @"expected spy to report receiving sent message");
+}
+
+- (void)testResetShouldClearAllRecordedInvocations {
+    [self.spy computeParsecs];
+    [self.spy fightersInSquadron:@"one"];
+    [self.spy clearRecordedInvocations];
+    STAssertFalse([self.spy hasReceivedMessageMatchingPattern:
+                   [KWMessagePattern messagePatternWithSelector:@selector(computeParsecs)]],
+                  @"expected spy to report not having received message after reseting");
+    STAssertFalse([self.spy hasReceivedMessageMatchingPattern:
+                   [KWMessagePattern messagePatternWithSelector:@selector(fightersInSquadron:)]],
+                  @"expected spy to report not having received message after reseting");
 }
 
 // Possibly for later, if we can come up with a method to avoid using
@@ -70,20 +90,34 @@
 //                                @"StubThrewException",
 //                                @"expected exception from stub");
 //}
+//  KWClearStubsAndSpies();
 
-- (void)testItShouldInitializeForAProtocol {
-    id mockedProtocol = @protocol(JumpCapable);
-//    id name = @"JumpCapable mock";
-    id spy = [KWSpy spyForProtocol:mockedProtocol];
-    STAssertNotNil(spy, @"expected a test spy object to be initialized");
-//    STAssertEqualObjects([mock mockName], @"JumpCapable mock", @"expected class mock to have the correct mockName");
+@end
+
+
+@interface KWProtocolSpyTest : SenTestCase
+@property (nonatomic, strong) Protocol *mockedProtocol;
+@property (nonatomic, strong) id spy;
+@end
+
+@implementation KWProtocolSpyTest
+
+- (void)setUp {
+    self.mockedProtocol = @protocol(JumpCapable);
+    self.spy = [KWSpy spyForProtocol:self.mockedProtocol];
 }
 
-- (void)testProtocolSpyShouldAppearToConformToMockedProtocol {
-    id mockedProtocol = @protocol(JumpCapable);
-    //    id name = @"JumpCapable mock";
-    id spy = [KWSpy spyForProtocol:mockedProtocol];
-    STAssertTrue([spy conformsToProtocol:mockedProtocol],
+- (void)tearDown {
+    self.spy = nil;
+    self.mockedProtocol = nil;
+}
+
+- (void)testItShouldBeInitialized {
+    STAssertNotNil(self.spy, @"expected a test spy object to be initialized");
+}
+
+- (void)testItShouldAppearToConformToMockedProtocol {
+    STAssertTrue([self.spy conformsToProtocol:self.mockedProtocol],
                  @"expected spy to appear to conform to specified protocol");
 }
 
