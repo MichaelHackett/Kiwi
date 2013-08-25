@@ -10,7 +10,7 @@
 //#import "KWInvocationCapturer.h"
 #import "KWMessagePattern.h"
 //#import "KWMessageTracker.h"
-//#import "KWObjCUtilities.h"
+#import "KWObjCUtilities.h"
 //#import "KWStringUtilities.h"
 //#import "KWWorkarounds.h"
 //#import "NSObject+KiwiStubAdditions.h"
@@ -121,10 +121,19 @@
 //    [self receiveMessagePattern:messagePattern countType:KWCountTypeAtMost count:aCount];
 //}
 
-- (void)haveReceived:(SEL)aSelector withArguments:(NSArray *)argumentFilters {
+- (void)haveReceived:(SEL)aSelector withArguments:(NSArray *)argumentMatchers {
+    NSUInteger messageArgumentCount = KWSelectorParameterCount(aSelector);
+    NSUInteger actualArgumentCount = [argumentMatchers count];
+    if (actualArgumentCount < messageArgumentCount) {
+        [NSException raise:NSInvalidArgumentException
+                    format:@"%@ message takes %u argument(s), but only %u argument matcher(s) given",
+                    NSStringFromSelector(aSelector),
+                    messageArgumentCount,
+                    actualArgumentCount];
+    }
     KWMessagePattern *messagePattern =
         [KWMessagePattern messagePatternWithSelector:aSelector
-                                     argumentFilters:argumentFilters];
+                                     argumentFilters:argumentMatchers];
     [self haveReceivedMessagePattern:messagePattern];
 }
 

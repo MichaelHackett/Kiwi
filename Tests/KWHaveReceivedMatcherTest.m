@@ -73,6 +73,12 @@
 }
 
 - (void)testItShouldNotMatchNonReceivedMessages {
+    [self.matcher haveReceived:@selector(raiseShields)];
+    STAssertFalse([self.matcher evaluate],
+                  @"Expected message was not sent to subject.");
+}
+
+- (void)testItShouldNotMatchDifferentMessages {
     [self.subject engageHyperdrive];
 
     [self.matcher haveReceived:@selector(raiseShields)];
@@ -111,6 +117,17 @@
                  withArguments:@[@"Viper 2"]];
     STAssertFalse([self.matcher evaluate],
                   @"Expected message was not sent to subject with expected arguments");
+}
+
+- (void)testMatcherWithArgumentsShouldRequireEnoughArgumentMatchersForMessage {
+    // specify matcher with too few argument matchers
+    STAssertThrowsSpecificNamed(
+        [self.matcher haveReceived:@selector(performSelectorInBackground:withObject:)
+                     withArguments:@[[NSValue valueWithPointer:@selector(description)]]],
+        NSException,
+        NSInvalidArgumentException,
+        @"expected exception because too few argument matchers passed to haveReceived:withArguments:"
+    );
 }
 
 - (void)testFailureMessageShouldIncludeNameOfMethodToMatch {
