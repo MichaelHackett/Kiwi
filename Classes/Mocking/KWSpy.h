@@ -18,11 +18,10 @@
 + (id)spyForProtocol:(Protocol *)aProtocol;
 
 #pragma mark - Recording messages
-- (void)recordInvocation:(NSInvocation *)invocation;
+- (void)recordInvocation:(NSInvocation *)anInvocation;
 - (void)clearRecordedInvocations;  // intentionally named to avoid conflicts with mocked classes
 
 #pragma mark - Verification
-//- (BOOL)hasReceivedMessage:(SEL)selector;
-- (BOOL)hasReceivedMessageMatchingPattern:(KWMessagePattern *)messagePattern;
+- (NSUInteger)countOfReceivedMessagesMatchingPattern:(KWMessagePattern *)aMessagePattern;
 
 @end

@@ -5,12 +5,7 @@
 //
 
 #import "KiwiConfiguration.h"
-//#import "KWCountType.h"
 #import "KWMatcher.h"
-//#import "KWMatchVerifier.h"
-
-//@class KWMessagePattern;
-//@class KWMessageTracker;
 
 @interface KWHaveReceivedMatcher : KWMatcher
 
@@ -19,18 +14,24 @@
 #pragma mark - Configuring Matchers
 
 - (void)haveReceived:(SEL)aSelector;
-//- (void)receive:(SEL)aSelector withCount:(NSUInteger)aCount;
-//- (void)receive:(SEL)aSelector withCountAtLeast:(NSUInteger)aCount;
-//- (void)receive:(SEL)aSelector withCountAtMost:(NSUInteger)aCount;
+- (void)haveReceived:(SEL)aSelector withCount:(NSUInteger)aCount;
+- (void)haveReceived:(SEL)aSelector withCountAtLeast:(NSUInteger)aCount;
+- (void)haveReceived:(SEL)aSelector withCountAtMost:(NSUInteger)aCount;
 - (void)haveReceived:(SEL)aSelector withArguments:(NSArray *)argumentFilters;
-//- (void)receiveMessagePattern:(KWMessagePattern *)aMessagePattern countType:(KWCountType)aCountType count:(NSUInteger)aCount;
-//- (void)receiveMessagePattern:(KWMessagePattern *)aMessagePattern andReturn:(id)aValue countType:(KWCountType)aCountType count:(NSUInteger)aCount;
+- (void)haveReceived:(SEL)aSelector withCount:(NSUInteger)aCount arguments:(NSArray *)argumentFilters;
+- (void)haveReceived:(SEL)aSelector withCountAtLeast:(NSUInteger)aCount arguments:(NSArray *)argumentFilters;
+- (void)haveReceived:(SEL)aSelector withCountAtMost:(NSUInteger)aCount arguments:(NSArray *)argumentFilters;
 
 @end
 
 //@interface KWMatchVerifier(KWReceiveMatcherAdditions)
 //
 //#pragma mark - Verifying
+//
+// The following variations are placed in a category on KWMatchVerifier
+// because the variable argument lists are not supported by the usual
+// KWMatcher invocation mechanism (which uses NSInvocations, which do not
+// support vararg method calls).
 //
 //- (void)receive:(SEL)aSelector withArguments:(id)firstArgument, ...;
 //- (void)receive:(SEL)aSelector withCount:(NSUInteger)aCount arguments:(id)firstArgument, ...;

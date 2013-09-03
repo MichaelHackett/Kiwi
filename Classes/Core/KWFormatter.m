@@ -25,6 +25,34 @@
 }
 
 
+#pragma mark - Getting Phrases
+
++ (NSString *)phraseForCount:(NSUInteger)aCount {
+    if (aCount == 1)
+        return @"1 time";
+
+    return [NSString stringWithFormat:@"%d times", (int)aCount];
+}
+
++ (NSString *)phraseForCountType:(KWCountType)aCountType count:(NSUInteger)aCount {
+    NSString *countPhrase = [self phraseForCount:aCount];
+
+    switch (aCountType) {
+        case KWCountTypeExact:
+            return [NSString stringWithFormat:@"exactly %@", countPhrase];
+        case KWCountTypeAtLeast:
+            return [NSString stringWithFormat:@"at least %@", countPhrase];
+        case KWCountTypeAtMost:
+            return [NSString stringWithFormat:@"at most %@", countPhrase];
+        default:
+            break;
+    }
+
+    assert(0 && "should never reach here");
+    return nil;
+}
+
+
 
 #pragma mark - Private
 

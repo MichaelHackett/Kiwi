@@ -19,8 +19,12 @@
 // directly.
 
 @interface KWSpy ()
+
 //@property (nonatomic, assign, readonly) Class mockedClass;
-@property (nonatomic, strong, readonly) NSMutableArray *receivedInvocations; // array of NSInvocations
+
+// array of NSInvocations received by spy:
+@property (nonatomic, strong, readonly) NSMutableArray *receivedInvocations;
+
 @end
 
 
@@ -112,8 +116,8 @@
 // limited to the argument value itself (a scalar value or an object
 // pointer), unless the objects are known to be immutable.
 
-- (void)recordInvocation:(NSInvocation *)invocation {
-    NSInvocation *invocationCopy = KWCopyInvocation(invocation);
+- (void)recordInvocation:(NSInvocation *)anInvocation {
+    NSInvocation *invocationCopy = KWCopyInvocation(anInvocation);
     [invocationCopy retainArguments];
     [self.receivedInvocations addObject:invocationCopy];
 }
@@ -125,17 +129,18 @@
 
 #pragma mark - Verification
 
+- (NSUInteger)countOfReceivedMessagesMatchingPattern:(KWMessagePattern *)aMessagePattern {
+    return [self.receivedInvocations countOfObjectsPassingTest:
+        ^(id invocation, NSUInteger index, BOOL *stop) {
+            return [aMessagePattern matchesInvocation:invocation];
+        }];
+}
+
 //- (BOOL)hasReceivedMessage:(SEL)selector {
 //    KWMessagePattern *messagePattern =
 //        [KWMessagePattern messagePatternWithSelector:selector];
-//    return [self hasReceivedInvocationMatchingMessagePattern:messagePattern];
+//    return [self hasReceivedMessageMatchingPattern:messagePattern];
 //}
-
-- (BOOL)hasReceivedMessageMatchingPattern:(KWMessagePattern*)pattern {
-    return ([self.receivedInvocations containsObjectPassingTest:^(id invocation, NSUInteger index, BOOL *stop) {
-        return [pattern matchesInvocation:invocation];
-    }]);
-}
 
 
 #pragma mark - Handling invocations (private)

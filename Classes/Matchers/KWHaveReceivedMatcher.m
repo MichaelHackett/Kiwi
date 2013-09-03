@@ -6,13 +6,12 @@
 
 #import "KWHaveReceivedMatcher.h"
 #import "KWSpy.h"
-//#import "KWFormatter.h"
+#import "KWFormatter.h"
 //#import "KWInvocationCapturer.h"
+#import "KWCountType.h"
 #import "KWMessagePattern.h"
-//#import "KWMessageTracker.h"
 #import "KWObjCUtilities.h"
 //#import "KWStringUtilities.h"
-//#import "KWWorkarounds.h"
 //#import "NSObject+KiwiStubAdditions.h"
 
 //static NSString * const MatchVerifierKey = @"MatchVerifierKey";
@@ -26,25 +25,26 @@
 
 @interface KWHaveReceivedMatcher ()
 
-//@property (nonatomic, assign) SEL selector;
 @property (nonatomic, strong) KWMessagePattern* messagePattern;
+@property (nonatomic, assign) KWCountType messageCountType;
+@property (nonatomic, assign) NSUInteger messageCount;
 
 @end
 
 @implementation KWHaveReceivedMatcher
-
-//#pragma mark - Properties
 
 #pragma mark - Getting Matcher Strings
 
 + (NSArray *)matcherStrings {
     return @[
         @"haveReceived:",
-        @"haveReceived:withArguments:"
-//        @"receive:withCount:",
-//        @"receive:withCountAtLeast:",
-//        @"receive:withCountAtMost:",
-//        @"receiveMessagePattern:countType:count:"
+        @"haveReceived:withCount:",
+        @"haveReceived:withCountAtLeast:",
+        @"haveReceived:withCountAtMost:",
+        @"haveReceived:withArguments:",
+        @"haveReceived:withCount:arguments:",
+        @"haveReceived:withCountAtLeast:arguments:",
+        @"haveReceived:withCountAtMost:arguments:",
     ];
 }
 
@@ -65,8 +65,20 @@
     }
     KWSpy *spy = (KWSpy *)self.subject;
 
-    return [spy hasReceivedMessageMatchingPattern:self.messagePattern];
+    NSUInteger matchCount = [spy countOfReceivedMessagesMatchingPattern:self.messagePattern];
+    switch (self.messageCountType) {
+        case KWCountTypeExact:
+            return matchCount == self.messageCount;
+        case KWCountTypeAtLeast:
+            return matchCount >= self.messageCount;
+        case KWCountTypeAtMost:
+            return matchCount <= self.messageCount;
+        default:
+            assert(0 && "unknown KWCountType in messageCountType property");
+            return NO;
+    }
 }
+
 
 #pragma mark - Messages
 
@@ -74,54 +86,80 @@
     return [self.messagePattern stringValue];
 }
 
-- (NSString *)failureMessageForShould {
-    return [NSString stringWithFormat:@"expected subject to have received -%@, but did not",
-                                      [self expectedMessagePatternAsString]];
-//    return [NSString stringWithFormat:@"expected subject to have received -%@ %@, but received it %@",
-//                                      [self.messageTracker.messagePattern stringValue],
-//                                      [self.messageTracker expectedCountPhrase],
-//                                      [self.messageTracker receivedCountPhrase]];
+- (NSString *)expectedCountPhrase {
+    return [KWFormatter phraseForCountType:self.messageCountType count:self.messageCount];
 }
 
-- (NSString *)failureMessageForShouldNot {
-    return [NSString stringWithFormat:@"expected subject not to have received -%@, but it did",
-                                      [self expectedMessagePatternAsString]];
-//    return [NSString stringWithFormat:@"expected subject not to receive -%@, but received it %@",
-//                                      [self.messageTracker.messagePattern stringValue],
-//                                      [self.messageTracker receivedCountPhrase]];
+- (NSString *)receivedCountPhrase {
+    if (![self.subject isKindOfClass:[KWSpy class]]) {
+        return @"unknown times";
+    }
+    KWSpy *spy = (KWSpy *)self.subject;
+    NSUInteger receivedCount = [spy countOfReceivedMessagesMatchingPattern:self.messagePattern];
+    return [KWFormatter phraseForCount:receivedCount];
+}
+
+- (NSString *)failureMessageForShould {
+    return [NSString stringWithFormat:@"expected subject to have received -%@ %@, but received it %@",
+                                      [self expectedMessagePatternAsString],
+                                      [self expectedCountPhrase],
+                                      [self receivedCountPhrase]];
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"received message %@",
-            [self expectedMessagePatternAsString]];
+    return [NSString stringWithFormat:@"received message %@ %@",
+            [self expectedMessagePatternAsString],
+            [self expectedCountPhrase]];
 }
 
-#pragma mark - Configuring Matchers
+#pragma mark - Public matcher configuration
 
 - (void)haveReceived:(SEL)aSelector {
-    [self haveReceivedMessagePattern:
-              [KWMessagePattern messagePatternWithSelector:aSelector]];
-//    KWMessagePattern *messagePattern = [KWMessagePattern messagePatternWithSelector:aSelector];
-    // ask subject if it received a message
-//    [self receiveMessagePattern:messagePattern countType:KWCountTypeExact count:1];
+    [self haveReceived:aSelector withCountAtLeast:1];
 }
 
-//- (void)receive:(SEL)aSelector withCount:(NSUInteger)aCount {
-//    KWMessagePattern *messagePattern = [KWMessagePattern messagePatternWithSelector:aSelector];
-//    [self receiveMessagePattern:messagePattern countType:KWCountTypeExact count:aCount];
-//}
-//
-//- (void)receive:(SEL)aSelector withCountAtLeast:(NSUInteger)aCount {
-//    KWMessagePattern *messagePattern = [KWMessagePattern messagePatternWithSelector:aSelector];
-//    [self receiveMessagePattern:messagePattern countType:KWCountTypeAtLeast count:aCount];
-//}
-//
-//- (void)receive:(SEL)aSelector withCountAtMost:(NSUInteger)aCount {
-//    KWMessagePattern *messagePattern = [KWMessagePattern messagePatternWithSelector:aSelector];
-//    [self receiveMessagePattern:messagePattern countType:KWCountTypeAtMost count:aCount];
-//}
+- (void)haveReceived:(SEL)aSelector withCount:(NSUInteger)aCount {
+    [self haveReceived:aSelector countType:KWCountTypeExact count:aCount];
+}
+
+- (void)haveReceived:(SEL)aSelector withCountAtLeast:(NSUInteger)aCount {
+    [self haveReceived:aSelector countType:KWCountTypeAtLeast count:aCount];
+}
+
+- (void)haveReceived:(SEL)aSelector withCountAtMost:(NSUInteger)aCount {
+    [self haveReceived:aSelector countType:KWCountTypeAtMost count:aCount];
+}
 
 - (void)haveReceived:(SEL)aSelector withArguments:(NSArray *)argumentMatchers {
+    [self haveReceived:aSelector withCountAtLeast:1 arguments:argumentMatchers];
+}
+
+- (void)haveReceived:(SEL)aSelector withCount:(NSUInteger)aCount arguments:(NSArray *)argumentMatchers {
+    [self haveReceived:aSelector countType:KWCountTypeExact count:aCount argumentMatchers:argumentMatchers];
+}
+
+- (void)haveReceived:(SEL)aSelector withCountAtLeast:(NSUInteger)aCount arguments:(NSArray *)argumentMatchers {
+    [self haveReceived:aSelector countType:KWCountTypeAtLeast count:aCount argumentMatchers:argumentMatchers];
+}
+
+- (void)haveReceived:(SEL)aSelector withCountAtMost:(NSUInteger)aCount arguments:(NSArray *)argumentMatchers {
+    [self haveReceived:aSelector countType:KWCountTypeAtMost count:aCount argumentMatchers:argumentMatchers];
+}
+
+
+#pragma mark - Internal matcher configuration support
+
+- (void)haveReceived:(SEL)aSelector countType:(KWCountType)aCountType count:(NSUInteger)aCount {
+    [self haveReceivedMessagePattern:[KWMessagePattern messagePatternWithSelector:aSelector]
+                           countType:aCountType
+                               count:aCount];
+}
+
+- (void)haveReceived:(SEL)aSelector
+           countType:(KWCountType)aCountType
+               count:(NSUInteger)aCount
+    argumentMatchers:(NSArray *)argumentMatchers
+{
     NSUInteger messageArgumentCount = KWSelectorParameterCount(aSelector);
     NSUInteger actualArgumentCount = [argumentMatchers count];
     if (actualArgumentCount < messageArgumentCount) {
@@ -134,11 +172,18 @@
     KWMessagePattern *messagePattern =
         [KWMessagePattern messagePatternWithSelector:aSelector
                                      argumentFilters:argumentMatchers];
-    [self haveReceivedMessagePattern:messagePattern];
+    [self haveReceivedMessagePattern:messagePattern
+                           countType:aCountType
+                               count:aCount];
 }
 
-- (void)haveReceivedMessagePattern:(KWMessagePattern *)aMessagePattern {
+- (void)haveReceivedMessagePattern:(KWMessagePattern *)aMessagePattern
+                         countType:(KWCountType)aCountType
+                             count:(NSUInteger)aCount
+{
     self.messagePattern = aMessagePattern;
+    self.messageCountType = aCountType;
+    self.messageCount = aCount;
 }
 
 //- (void)receiveMessagePattern:(KWMessagePattern *)aMessagePattern countType:(KWCountType)aCountType count:(NSUInteger)aCount {

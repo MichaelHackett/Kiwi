@@ -69,6 +69,11 @@
 - (NSUInteger)hyperdriveFuelLevel;
 
 #pragma mark -
+#pragma mark Communication
+
+- (void)sendMessage:(NSString*)aMessage toShipWithCallSign:(NSString*)aCallSign repeatCount:(NSUInteger)aCount;
+
+#pragma mark -
 #pragma mark Raising
 
 - (void)raise;

@@ -7,7 +7,6 @@
 #import "Kiwi.h"
 #import "KiwiTestConfiguration.h"
 #import "TestClasses.h"
-//#import "KWIntercept.h"
 
 #if KW_TESTS_ENABLED
 
@@ -32,16 +31,18 @@
     id matcherStrings = [KWHaveReceivedMatcher matcherStrings];
     id expectedStrings = @[
         @"haveReceived:",
-        @"haveReceived:withArguments:"
-    //                         @"receive:withCount:",
-    //                         @"receive:withCountAtLeast:",
-    //                         @"receive:withCountAtMost:",
-    //                         @"receiveMessagePattern:countType:count:",
+        @"haveReceived:withCount:",
+        @"haveReceived:withCountAtLeast:",
+        @"haveReceived:withCountAtMost:",
+        @"haveReceived:withArguments:",
+        @"haveReceived:withCount:arguments:",
+        @"haveReceived:withCountAtLeast:arguments:",
+        @"haveReceived:withCountAtMost:arguments:"
     ];
 
     STAssertEqualObjects([matcherStrings sortedArrayUsingSelector:@selector(compare:)],
                          [expectedStrings sortedArrayUsingSelector:@selector(compare:)],
-                         @"expected specific matcher strings");
+                         @"Expected specific matcher strings.");
 }
 
 @end
@@ -64,26 +65,34 @@
     self.matcher = nil;
 }
 
+
+#pragma mark - Matching by message selector only
+
 - (void)testItShouldMatchReceivedMessages {
     [self.subject raiseShields];
 
     [self.matcher haveReceived:@selector(raiseShields)];
-    STAssertTrue([self.matcher evaluate],
-                 @"Expected message was sent to subject.");
+    STAssertTrue([self.matcher evaluate], @"Expected matcher to pass.");
+}
+
+- (void)testItShouldMatchAnyNumberOfReceivedMessages {
+    [self.subject raiseShields];
+    [self.subject raiseShields];
+
+    [self.matcher haveReceived:@selector(raiseShields)];
+    STAssertTrue([self.matcher evaluate], @"Expected matcher to pass.");
 }
 
 - (void)testItShouldNotMatchNonReceivedMessages {
     [self.matcher haveReceived:@selector(raiseShields)];
-    STAssertFalse([self.matcher evaluate],
-                  @"Expected message was not sent to subject.");
+    STAssertFalse([self.matcher evaluate], @"Expected matcher to report failure.");
 }
 
 - (void)testItShouldNotMatchDifferentMessages {
     [self.subject engageHyperdrive];
 
     [self.matcher haveReceived:@selector(raiseShields)];
-    STAssertFalse([self.matcher evaluate],
-                  @"Expected message was not sent to subject.");
+    STAssertFalse([self.matcher evaluate], @"Expected message to report failure.");
 }
 
 - (void)testItShouldMatchMessageReceivedAmongstOtherMessages {
@@ -93,21 +102,130 @@
     [self.subject fighterWithCallsign:@"Viper 1"];
 
     [self.matcher haveReceived:@selector(raiseShields)];
-    STAssertTrue([self.matcher evaluate],
-                 @"Expected message was sent to subject.");
+    STAssertTrue([self.matcher evaluate], @"Expected matcher to pass.");
 }
 
-// TODO: Test with multi-arg methods, rather than single-arg.
-
-- (void)testItShouldMatchMessageWithMatchingArguments {
+- (void)testItShouldMatchWhenReceivedMessageCountEqualsExactCount {
+    [self.subject computeParsecs];
+    [self.subject raiseShields];
+    [self.subject engageHyperdrive];
+    [self.subject raiseShields];
+    [self.subject raiseShields];
     [self.subject fighterWithCallsign:@"Viper 1"];
 
-//    [self.matcher haveReceivedMessage:[messageTo(Cruiser) fighterWithCallsign:@"Viper 1"]];
-//    [[self.matcher haveReceived] fighterWithCallsign:@"Viper 1"];
-    [self.matcher haveReceived:@selector(fighterWithCallsign:)
-                 withArguments:@[@"Viper 1"]];
-    STAssertTrue([self.matcher evaluate],
-                 @"Expected message was sent to subject with expected arguments");
+    [self.matcher haveReceived:@selector(raiseShields) withCount:3];
+    STAssertTrue([self.matcher evaluate], @"Expected matcher to pass.");
+}
+
+- (void)testItShouldNotMatchWhenReceivedMessageCountIsLessThanExactCount {
+    [self.subject computeParsecs];
+    [self.subject raiseShields];
+    [self.subject engageHyperdrive];
+    [self.subject raiseShields];
+
+    [self.matcher haveReceived:@selector(raiseShields) withCount:3];
+    STAssertFalse([self.matcher evaluate], @"Expected matcher to report failure.");
+}
+
+- (void)testItShouldNotMatchWhenReceivedMessageCountIsGreaterThanExactCount {
+    [self.subject computeParsecs];
+    [self.subject raiseShields];
+    [self.subject engageHyperdrive];
+    [self.subject raiseShields];
+    [self.subject raiseShields];
+    [self.subject raiseShields];
+
+    [self.matcher haveReceived:@selector(raiseShields) withCount:3];
+    STAssertFalse([self.matcher evaluate], @"Expected matcher to report failure.");
+}
+
+- (void)testItShouldMatchWhenReceivedMessageCountEqualsMinimumCount {
+    [self.subject computeParsecs];
+    [self.subject raiseShields];
+    [self.subject engageHyperdrive];
+    [self.subject raiseShields];
+    [self.subject raiseShields];
+    [self.subject fighterWithCallsign:@"Viper 1"];
+
+    [self.matcher haveReceived:@selector(raiseShields) withCountAtLeast:3];
+    STAssertTrue([self.matcher evaluate], @"Expected matcher to pass.");
+}
+
+- (void)testItShouldNotMatchWhenReceivedMessageCountIsLessThanMinimumCount {
+    [self.subject computeParsecs];
+    [self.subject raiseShields];
+    [self.subject engageHyperdrive];
+    [self.subject raiseShields];
+
+    [self.matcher haveReceived:@selector(raiseShields) withCountAtLeast:3];
+    STAssertFalse([self.matcher evaluate], @"Expected matcher to report failure.");
+}
+
+- (void)testItShouldMatchWhenReceivedMessageCountIsGreaterThanMinimumCount {
+    [self.subject computeParsecs];
+    [self.subject raiseShields];
+    [self.subject engageHyperdrive];
+    [self.subject raiseShields];
+    [self.subject raiseShields];
+    [self.subject raiseShields];
+
+    [self.matcher haveReceived:@selector(raiseShields) withCountAtLeast:3];
+    STAssertTrue([self.matcher evaluate], @"Expected matcher to pass.");
+}
+
+- (void)testItShouldMatchWhenReceivedMessageCountEqualsMaximumCount {
+    [self.subject computeParsecs];
+    [self.subject raiseShields];
+    [self.subject engageHyperdrive];
+    [self.subject raiseShields];
+    [self.subject raiseShields];
+    [self.subject fighterWithCallsign:@"Viper 1"];
+
+    [self.matcher haveReceived:@selector(raiseShields) withCountAtMost:3];
+    STAssertTrue([self.matcher evaluate], @"Expected matcher to pass.");
+}
+
+- (void)testItShouldMatchWhenReceivedMessageCountIsLessThanMaximumCount {
+    [self.subject computeParsecs];
+    [self.subject raiseShields];
+    [self.subject engageHyperdrive];
+    [self.subject raiseShields];
+
+    [self.matcher haveReceived:@selector(raiseShields) withCountAtMost:3];
+    STAssertTrue([self.matcher evaluate], @"Expected matcher to pass.");
+}
+
+- (void)testItShouldNotMatchWhenReceivedMessageCountIsGreaterThanMaximumCount {
+    [self.subject computeParsecs];
+    [self.subject raiseShields];
+    [self.subject engageHyperdrive];
+    [self.subject raiseShields];
+    [self.subject raiseShields];
+    [self.subject raiseShields];
+
+    [self.matcher haveReceived:@selector(raiseShields) withCountAtMost:3];
+    STAssertFalse([self.matcher evaluate], @"Expected matcher to report failure.");
+}
+
+
+#pragma mark - Matching selector and arguments
+
+- (void)testItShouldMatchMessageWithMatchingArguments {
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:99];
+
+//    [[self.matcher haveReceived] sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:99];
+    [self.matcher haveReceived:@selector(sendMessage:toShipWithCallSign:repeatCount:)
+                 withArguments:@[@"SOS", @"Viper 1", theValue(99)]];
+    STAssertTrue([self.matcher evaluate], @"Expected matcher to pass.");
+}
+
+- (void)testItShouldMatchAnyNumberOfReceivedMessagesWithMatchingArguments {
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:5];
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"XYZ" repeatCount:5];
+
+    [self.matcher haveReceived:@selector(sendMessage:toShipWithCallSign:repeatCount:)
+                 withArguments:@[@"SOS", any(), theValue(5)]];
+    STAssertTrue([self.matcher evaluate], @"Expected matcher to pass.");
 }
 
 - (void)testItShouldNotMatchMessageWithDifferentArguments {
@@ -115,8 +233,7 @@
 
     [self.matcher haveReceived:@selector(fighterWithCallsign:)
                  withArguments:@[@"Viper 2"]];
-    STAssertFalse([self.matcher evaluate],
-                  @"Expected message was not sent to subject with expected arguments");
+    STAssertFalse([self.matcher evaluate], @"Expected matcher to report failure.");
 }
 
 - (void)testMatcherWithArgumentsShouldRequireEnoughArgumentMatchersForMessage {
@@ -126,9 +243,138 @@
                      withArguments:@[[NSValue valueWithPointer:@selector(description)]]],
         NSException,
         NSInvalidArgumentException,
-        @"expected exception because too few argument matchers passed to haveReceived:withArguments:"
+        @"Expected exception because too few argument matchers passed to haveReceived:withArguments:"
     );
 }
+
+- (void)testItShouldMatchWhenCountOfReceivedMessagesMatchingArgumentsEqualsExactCount {
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:10];
+    [self.subject raiseShields];
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:11];
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 2" repeatCount:13];
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:3];
+    [self.subject fighterWithCallsign:@"Viper 1"];
+
+    [self.matcher haveReceived:@selector(sendMessage:toShipWithCallSign:repeatCount:)
+                     withCount:3
+                     arguments:@[@"SOS", @"Viper 1", any()]];
+    STAssertTrue([self.matcher evaluate], @"Expected matcher to pass.");
+}
+
+- (void)testItShouldNotMatchWhenCountOfReceivedMessagesMatchingArgumentsIsLessThanExactCount {
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:10];
+    [self.subject raiseShields];
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:11];
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 2" repeatCount:13];
+    [self.subject fighterWithCallsign:@"Viper 1"];
+
+    [self.matcher haveReceived:@selector(sendMessage:toShipWithCallSign:repeatCount:)
+                     withCount:3
+                     arguments:@[@"SOS", @"Viper 1", any()]];
+    STAssertFalse([self.matcher evaluate], @"Expected matcher to report failure.");
+}
+
+- (void)testItShouldNotMatchWhenCountOfReceivedMessagesMatchingArgumentsIsGreaterThanExactCount {
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:10];
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:11];
+    [self.subject raiseShields];
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:5];
+    [self.subject fighterWithCallsign:@"Viper 1"];
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:92];
+    [self.subject raiseShields];
+
+    [self.matcher haveReceived:@selector(sendMessage:toShipWithCallSign:repeatCount:)
+                     withCount:3
+                     arguments:@[@"SOS", @"Viper 1", any()]];
+    STAssertFalse([self.matcher evaluate], @"Expected matcher to report failure.");
+}
+
+- (void)testItShouldMatchWhenCountOfReceivedMessagesMatchingArgumentsEqualsMinimumCount {
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:10];
+    [self.subject raiseShields];
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:11];
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 2" repeatCount:13];
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:3];
+    [self.subject fighterWithCallsign:@"Viper 1"];
+
+    [self.matcher haveReceived:@selector(sendMessage:toShipWithCallSign:repeatCount:)
+              withCountAtLeast:3
+                     arguments:@[@"SOS", @"Viper 1", any()]];
+    STAssertTrue([self.matcher evaluate], @"Expected matcher to pass.");
+}
+
+- (void)testItShouldNotMatchWhenCountOfReceivedMessagesMatchingArgumentsIsLessThanMinimumCount {
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:10];
+    [self.subject raiseShields];
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:11];
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 2" repeatCount:13];
+    [self.subject fighterWithCallsign:@"Viper 1"];
+
+    [self.matcher haveReceived:@selector(sendMessage:toShipWithCallSign:repeatCount:)
+              withCountAtLeast:3
+                     arguments:@[@"SOS", @"Viper 1", any()]];
+    STAssertFalse([self.matcher evaluate], @"Expected matcher to report failure.");
+}
+
+- (void)testItShouldMatchWhenCountOfReceivedMessagesMatchingArgumentsIsGreaterThanMinimumCount {
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:10];
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:11];
+    [self.subject raiseShields];
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:5];
+    [self.subject fighterWithCallsign:@"Viper 1"];
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:92];
+    [self.subject raiseShields];
+
+    [self.matcher haveReceived:@selector(sendMessage:toShipWithCallSign:repeatCount:)
+              withCountAtLeast:3
+                     arguments:@[@"SOS", @"Viper 1", any()]];
+    STAssertTrue([self.matcher evaluate], @"Expected matcher to pass.");
+}
+
+- (void)testItShouldMatchWhenCountOfReceivedMessagesMatchingArgumentsEqualsMaximumCount {
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:10];
+    [self.subject raiseShields];
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:11];
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 2" repeatCount:13];
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:3];
+    [self.subject fighterWithCallsign:@"Viper 1"];
+
+    [self.matcher haveReceived:@selector(sendMessage:toShipWithCallSign:repeatCount:)
+               withCountAtMost:3
+                     arguments:@[@"SOS", @"Viper 1", any()]];
+    STAssertTrue([self.matcher evaluate], @"Expected matcher to pass.");
+}
+
+- (void)testItShouldMatchWhenCountOfReceivedMessagesMatchingArgumentsIsLessThanMaximumCount {
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:10];
+    [self.subject raiseShields];
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:11];
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 2" repeatCount:13];
+    [self.subject fighterWithCallsign:@"Viper 1"];
+
+    [self.matcher haveReceived:@selector(sendMessage:toShipWithCallSign:repeatCount:)
+               withCountAtMost:3
+                     arguments:@[@"SOS", @"Viper 1", any()]];
+    STAssertTrue([self.matcher evaluate], @"Expected matcher to pass.");
+}
+
+- (void)testItShouldNotMatchWhenCountOfReceivedMessagesMatchingArgumentsIsGreaterThanMaximumCount {
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:10];
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:11];
+    [self.subject raiseShields];
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:5];
+    [self.subject fighterWithCallsign:@"Viper 1"];
+    [self.subject sendMessage:@"SOS" toShipWithCallSign:@"Viper 1" repeatCount:92];
+    [self.subject raiseShields];
+
+    [self.matcher haveReceived:@selector(sendMessage:toShipWithCallSign:repeatCount:)
+               withCountAtMost:3
+                     arguments:@[@"SOS", @"Viper 1", any()]];
+    STAssertFalse([self.matcher evaluate], @"Expected matcher to report failure.");
+}
+
+
+#pragma mark - Textual output
 
 - (void)testFailureMessageShouldIncludeNameOfMethodToMatch {
     SEL expectedSelector = @selector(raiseShields);
@@ -165,14 +411,9 @@
     STAssertThrowsSpecificNamed([matcher evaluate],
                                 NSException,
                                 @"KWMatcherException",
-                                @"expected exception because subject is not a KWSpy");
+                                @"Expected exception because subject is not a KWSpy.");
 }
 
 @end
-
-// capture multiple invocations of same method
-// -- same arguments and differing arguments
-
-// report number of invocations matching specification
 
 #endif // #if KW_TESTS_ENABLED
