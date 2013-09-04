@@ -7,21 +7,9 @@
 #import "Kiwi.h"
 #import "KiwiTestConfiguration.h"
 #import "TestClasses.h"
+#import "NSString+KWSimpleContainmentTestAdditions.h"
 
 #if KW_TESTS_ENABLED
-
-@interface NSString (KWStreamlinedContainmentTestAdditions)
-- (BOOL)containsString:(NSString *)string;
-@end
-@implementation NSString (KWStreamlinedContainmentTestAdditions)
-
-- (BOOL)containsString:(NSString *)string {
-    NSRange matchRange = [self rangeOfString:string];
-    return matchRange.location != NSNotFound;
-}
-
-@end
-
 
 @interface KWHaveReceivedMatcherStringsTest : SenTestCase
 @end

@@ -23,5 +23,6 @@
 
 #pragma mark - Verification
 - (NSUInteger)countOfReceivedMessagesMatchingPattern:(KWMessagePattern *)aMessagePattern;
+- (NSIndexSet*)indexesOfReceivedMessagesMatchingPattern:(KWMessagePattern *)aMessagePattern;
 
 @end

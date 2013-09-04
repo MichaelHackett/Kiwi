@@ -18,12 +18,12 @@
 // need to look at recommended practices to see if anyone uses -class
 // directly.
 
-@interface KWSpy ()
+@interface KWSpy () {
+    // array of NSInvocations received by spy
+    NSMutableArray* _receivedInvocations;
+}
 
 //@property (nonatomic, assign, readonly) Class mockedClass;
-
-// array of NSInvocations received by spy:
-@property (nonatomic, strong, readonly) NSMutableArray *receivedInvocations;
 
 @end
 
@@ -106,6 +106,15 @@
 //
 //}
 
+// Not currently needed
+//#pragma mark - Properties
+//
+//- (NSArray *)receivedInvocations {
+//    // Returns an immutable copy of the spy's invocation record.
+//    return [NSArray arrayWithArray:_receivedInvocations];
+//}
+
+
 #pragma mark - Recording messages
 
 // Records the given invocation in the list of messages received by this
@@ -119,18 +128,25 @@
 - (void)recordInvocation:(NSInvocation *)anInvocation {
     NSInvocation *invocationCopy = KWCopyInvocation(anInvocation);
     [invocationCopy retainArguments];
-    [self.receivedInvocations addObject:invocationCopy];
+    [_receivedInvocations addObject:invocationCopy];
 }
 
 - (void)clearRecordedInvocations {
-    [self.receivedInvocations removeAllObjects];
+    [_receivedInvocations removeAllObjects];
 }
 
 
 #pragma mark - Verification
 
 - (NSUInteger)countOfReceivedMessagesMatchingPattern:(KWMessagePattern *)aMessagePattern {
-    return [self.receivedInvocations countOfObjectsPassingTest:
+    return [_receivedInvocations countOfObjectsPassingTest:
+        ^(id invocation, NSUInteger index, BOOL *stop) {
+            return [aMessagePattern matchesInvocation:invocation];
+        }];
+}
+
+- (NSIndexSet*)indexesOfReceivedMessagesMatchingPattern:(KWMessagePattern *)aMessagePattern {
+    return [_receivedInvocations indexesOfObjectsPassingTest:
         ^(id invocation, NSUInteger index, BOOL *stop) {
             return [aMessagePattern matchesInvocation:invocation];
         }];

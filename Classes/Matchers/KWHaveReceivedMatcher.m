@@ -5,14 +5,12 @@
 //
 
 #import "KWHaveReceivedMatcher.h"
-#import "KWSpy.h"
+#import "KWCountType.h"
 #import "KWFormatter.h"
 //#import "KWInvocationCapturer.h"
-#import "KWCountType.h"
 #import "KWMessagePattern.h"
 #import "KWObjCUtilities.h"
-//#import "KWStringUtilities.h"
-//#import "NSObject+KiwiStubAdditions.h"
+#import "KWSpy.h"
 
 //static NSString * const MatchVerifierKey = @"MatchVerifierKey";
 //static NSString * const CountTypeKey = @"CountTypeKey";
@@ -44,7 +42,7 @@
         @"haveReceived:withArguments:",
         @"haveReceived:withCount:arguments:",
         @"haveReceived:withCountAtLeast:arguments:",
-        @"haveReceived:withCountAtMost:arguments:",
+        @"haveReceived:withCountAtMost:arguments:"
     ];
 }
 
