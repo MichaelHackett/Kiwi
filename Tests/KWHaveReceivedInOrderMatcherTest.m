@@ -98,8 +98,8 @@ matcherReferenceSelector:(SEL)aMatcherReferenceSelector
 // combinations up to 3 messages (to ensure that repeated messages are handled
 // correctly), and then just test the unique cases beyond that.
 //
-// Note the special cases: If the reference message is never received, the
-// matcher always passes; if the expected message is never received, the
+// Note the special cases: If the expected message is never received, the
+// matcher always fails; if the expected message is never received, the
 // matcher always fails. (The matcher definition is that it passes if the "a"
 // message was received AND (at least one instance of the "a" message meets the
 // specified relative ordering with respect to the "b" message, IF the "b"
@@ -110,23 +110,23 @@ matcherReferenceSelector:(SEL)aMatcherReferenceSelector
 
     [testSuite addTest:
      [self testSuiteForMatcherSelector:@"haveReceived:beforeFirst:"
-                   casesPassingMatcher:@"a,aa,ab,aaa,aab,aba,abb,abab,ababa"
-                   casesFailingMatcher:@",b,ba,bb,baa,bab,bba,bbb,baba"]];
+                   casesPassingMatcher:@"ab,aab,aba,abb,abab,ababa"
+                   casesFailingMatcher:@",a,aa,aaa,b,ba,bb,baa,bab,bba,bbb,baba"]];
 
     [testSuite addTest:
      [self testSuiteForMatcherSelector:@"haveReceived:beforeLast:"
-                   casesPassingMatcher:@"a,aa,ab,aaa,aab,aba,abb,bab,abab,baba,ababa"
-                   casesFailingMatcher:@",b,ba,bb,baa,bba,bbb"]];
+                   casesPassingMatcher:@"ab,aab,aba,abb,bab,abab,baba,ababa"
+                   casesFailingMatcher:@",a,aa,aaa,b,ba,bb,baa,bba,bbb"]];
 
     [testSuite addTest:
      [self testSuiteForMatcherSelector:@"haveReceived:afterFirst:"
-                   casesPassingMatcher:@"a,aa,ba,aaa,aba,baa,bab,bba,abab,baba,ababa"
-                   casesFailingMatcher:@",b,ab,bb,aab,abb,bbb"]];
+                   casesPassingMatcher:@"ba,aba,baa,bab,bba,abab,baba,ababa"
+                   casesFailingMatcher:@",a,aa,aaa,b,ab,bb,aab,abb,bbb"]];
 
     [testSuite addTest:
      [self testSuiteForMatcherSelector:@"haveReceived:afterLast:"
-                   casesPassingMatcher:@"a,aa,ba,aaa,aba,baa,bba,baba,ababa"
-                   casesFailingMatcher:@",b,ab,bb,aab,abb,bab,bbb,abab"]];
+                   casesPassingMatcher:@"ba,aba,baa,bba,baba,ababa"
+                   casesFailingMatcher:@",a,aa,aaa,b,ab,bb,aab,abb,bab,bbb,abab"]];
 
     return [testSuite autorelease];
 }

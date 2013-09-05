@@ -68,7 +68,8 @@ typedef enum {
         return NO;  // match message never received
     }
     if (referenceMessageIndex == NSNotFound) {
-        return YES;  // reference message never received, so constraint is moot
+        return NO;  // reference message never received, so constraint is invalid;
+                    // see class description for discussion
     }
     switch (self.expectedMessagePosition) {
         case KWHaveReceivedMessageOrderBeforeFirst:

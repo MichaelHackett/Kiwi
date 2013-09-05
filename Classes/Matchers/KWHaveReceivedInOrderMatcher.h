@@ -14,16 +14,12 @@ Matcher for checking the order of messages sent to a test spy.
 The various forms of this matcher pass if **both** of these conditions are
 true:
 
-* the message type specified by the **first argument** (the "expected
-  message") was received by the matcher's subject (which must be a test spy)
-* at least one instance of that message type (if it was received more than
-  once) was received either before or after some instance (the first or
-  last) of a second message type (the "reference message"), as specified by
-  the name and value of the second argument **if** the reference message type
-  was received at all. (If the reference message was not received, the
-  matcher considers this condition met. If you need to be sure that the
-  reference message was also received, add a separate "haveReceived:"
-  matcher for it, too.)
+* the message types specified by the first argument (the "expected message")
+  and the second argument (the "reference message") were both received by the
+  matcher's subject (which must be a test spy) at least once
+* at least one instance of the expected message type was received either
+  before or after some instance (the first or last) of the reference message
+  type, as specified by the name and value of the second argument.
 
 For example, the matcher:
 
@@ -31,9 +27,18 @@ For example, the matcher:
 
 passes if +a+ is received at least once before +b+, or only +a+ is received.
 
-The above conditions imply that the matcher always passes if *only* the
-expected message is received, and always fails if only the reference message
-is received (or if no messages are received).
+Note that one implication of the above conditions is that the matcher always
+fails if the reference message is not received. This was a somewhat arbitrary
+decision (given that the comparison is simply invalid if there is no
+reference point), but it seemed logical that the negative case (e.g.,
++[[aSpy shouldNot] haveReceived:a beforeFirst:b]+) should pass if the
+reference was not received (because 'a' was *not* received before the first
+'b', there not being a first 'b'), so we are (currently) forced to make the
+positive case the opposite. If this proves to be inconvenient in practice,
+this decision can be reconsidered, perhaps by making an addition to the
+framework to allow matchers to be aware of their verification context. For
+now, for positive tests, it's prudent to first verify that the reference
+method has been received by the subject before using this matcher.
 
 Some combinations may seem of limited use, such as "beforeLast" (which does
 not fail if the expected message also appears /after/ the reference message),
@@ -43,22 +48,10 @@ example, turning "beforeLast" around, we can test that some message comes
 *only after* another, if it was received at all. You may want to combine the
 positive and negative forms to verify a strict ordering of messages.
 
-WARNING: Do be careful about the negative forms of the special cases: If the
-expected message is not received, the matcher will pass with a +shouldNot+
-verifier, which is logical. However, if only the expected message is received
-(and not the reference message), a +shouldNot+ form of this matcher will
-always **fail**, which may not be what you expect. (After all, the expected
-message actually *didn't* come before or after the reference message, if
-the reference message wasn't received, and in the positive case, this matcher
-always passes.) There is, unfortunately, not currently any way for a matcher
-to detect whether it is being used in a positive or negative context (except
-after the fact, when its failure message is being requested), so there
-doesn't appear to be any way to work around this. Just be aware of it and
-use an additional matcher to verify that the reference message was also
-received, in conjunction with the matcher to test for ordering.
-
 Currently, the matcher can only compare the order of messages sent to a
-single instance, not messages sent to two different instances.
+single instance, not messages sent to two different instances. This would
+require some higher-level cooperation between test doubles, which is not
+currently in place.
 
 */
 @interface KWHaveReceivedInOrderMatcher : KWMatcher
