@@ -31,7 +31,7 @@
 
 #pragma mark - Configuring Matchers
 
-- (void)haveReceived:(SEL)aSelector before:(SEL)anotherSelector;
+- (void)haveReceived:(SEL)aSelector beforeFirst:(SEL)anotherSelector;
 - (void)haveReceived:(SEL)aSelector afterFirst:(SEL)anotherSelector;
 - (void)haveReceived:(SEL)aSelector afterLast:(SEL)anotherSelector;
 

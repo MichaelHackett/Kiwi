@@ -15,7 +15,7 @@
 
 // Defines the expected order of one message relative to another.
 typedef enum {
-    KWHaveReceivedMessageOrderBefore,
+    KWHaveReceivedMessageOrderBeforeFirst,
     KWHaveReceivedMessageOrderAfterFirst,
     KWHaveReceivedMessageOrderAfterLast
 } KWHaveReceivedMessageOrder;
@@ -37,7 +37,7 @@ typedef enum {
 
 + (NSArray *)matcherStrings {
     return @[
-        @"haveReceived:before:",
+        @"haveReceived:beforeFirst:",
         @"haveReceived:afterFirst:",
         @"haveReceived:afterLast:"
     ];
@@ -69,7 +69,7 @@ typedef enum {
         return YES;  // reference message never received, so constraint is moot
     }
     switch (self.expectedMessagePosition) {
-        case KWHaveReceivedMessageOrderBefore: {
+        case KWHaveReceivedMessageOrderBeforeFirst: {
             return expectedMessageIndex < referenceMessageIndex;
         }
         case KWHaveReceivedMessageOrderAfterFirst:
@@ -83,14 +83,20 @@ typedef enum {
     }
 }
 
-// Returns the ordinal position (index) of the "expected" message within the
-// record of all message received by the subject of the matcher (starting
-// from 0). If no matching message has been received, the method returns
-// +NSNotFound+.
+// Returns the ordinal position (index) of the first or last occurence of the
+// "expected" message within the record of all message received by the subject
+// of the matcher (starting from 0). The first occurence is selected if
+// testing whether the expected message appears *before* the reference message,
+// while the last occurence is used if testing whether the expected message
+// appears *after* the reference message. If the expected message has not been
+// received at all, the method always returns +NSNotFound+.
 - (NSUInteger)expectedMessageOrdinal {
     NSIndexSet* matchingIndexes =
         [self indexesOfReceivedMessagesMatchingSelector:self.expectedSelector];
-    return [matchingIndexes firstIndex];
+    if (self.expectedMessagePosition == KWHaveReceivedMessageOrderBeforeFirst) {
+        return [matchingIndexes firstIndex];
+    }
+    return [matchingIndexes lastIndex];
 }
 
 // Likewise for the "reference" message, being either the first or last
@@ -143,8 +149,8 @@ typedef enum {
 
 - (NSString *)messageOrderString {
     switch (self.expectedMessagePosition) {
-        case KWHaveReceivedMessageOrderBefore: {
-            return @"before";
+        case KWHaveReceivedMessageOrderBeforeFirst: {
+            return @"before first";
         }
         case KWHaveReceivedMessageOrderAfterFirst: {
             return @"after first";
@@ -163,10 +169,10 @@ typedef enum {
 
 #pragma mark - Public matcher configuration
 
-- (void)haveReceived:(SEL)aSelector before:(SEL)anotherSelector {
+- (void)haveReceived:(SEL)aSelector beforeFirst:(SEL)anotherSelector {
     self.expectedSelector = aSelector;
     self.referenceSelector = anotherSelector;
-    self.expectedMessagePosition = KWHaveReceivedMessageOrderBefore;
+    self.expectedMessagePosition = KWHaveReceivedMessageOrderBeforeFirst;
 }
 
 - (void)haveReceived:(SEL)aSelector afterFirst:(SEL)anotherSelector {
