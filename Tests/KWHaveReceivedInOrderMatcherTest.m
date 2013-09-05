@@ -22,6 +22,7 @@
     id matcherStrings = [KWHaveReceivedInOrderMatcher matcherStrings];
     id expectedStrings = @[
         @"haveReceived:beforeFirst:",
+        @"haveReceived:beforeLast:",
         @"haveReceived:afterFirst:",
         @"haveReceived:afterLast:"
     ];
@@ -41,17 +42,16 @@
 
 // Test parameters
 @property (nonatomic, assign, readonly) SEL matcherSelector;
-@property (nonatomic, assign, readonly) SEL testExerciseSelector;
+@property (nonatomic, copy, readonly) NSString* exerciseMessagePattern;
 @property (nonatomic, assign) SEL matcherExpectedSelector;
 @property (nonatomic, assign) SEL matcherReferenceSelector;
 @property (nonatomic, assign) BOOL matcherShouldPass;
-//@property (nonatomic, copy, readonly) NSString *expectedOrderMessage;
 
 // Subject of tests
 @property (nonatomic, strong) KWHaveReceivedInOrderMatcher* matcher;
 
 // Test spy that is the subject of the matcher.
-@property (nonatomic, strong) Carrier* matcherSubject;  // shorten name to clean up test exercising blocks?
+@property (nonatomic, strong) Carrier* matcherSubject;
 
 @end
 
@@ -61,7 +61,7 @@
 
 - (id)initWithInvocation:(NSInvocation *)anInvocation
          matcherSelector:(SEL)aMatcherSelector
-    testExerciseSelector:(SEL)aTestExerciseSelector
+  exerciseMessagePattern:(NSString*)anExerciseMessagePattern
  matcherExpectedSelector:(SEL)aMatcherExpectedSelector
 matcherReferenceSelector:(SEL)aMatcherReferenceSelector
        matcherShouldPass:(BOOL)theMatcherShouldPass
@@ -69,7 +69,7 @@ matcherReferenceSelector:(SEL)aMatcherReferenceSelector
     self = [super initWithInvocation:anInvocation];
     if (self) {
         _matcherSelector = aMatcherSelector;
-        _testExerciseSelector = aTestExerciseSelector;
+        _exerciseMessagePattern = [anExerciseMessagePattern copy];
         _matcherExpectedSelector = aMatcherExpectedSelector;
         _matcherReferenceSelector = aMatcherReferenceSelector;
         _matcherShouldPass = theMatcherShouldPass;
@@ -77,122 +77,58 @@ matcherReferenceSelector:(SEL)aMatcherReferenceSelector
     return self;
 }
 
+- (void)dealloc {
+    [_exerciseMessagePattern release];
+    [super dealloc];
+}
+
+
 
 #pragma mark - Test suite definition
+
+// Each of the short strings describing the test cases below (e.g., "ab",
+// "abba") represents a pattern of messages to be sent to a test spy that will
+// be the subject of the matcher being tested. Each "a" is translated into a
+// send of the "expected" message (the first argument to the matcher method);
+// each "b" is translated into a send of the "reference" message. (An empty
+// string is a valid test that sends no messages to the spy.)
+//
+// Any adjacent repeated letters (e.g., "aa" or "bb") should behave logically
+// as if there was just one of that letter, so we only exhaustively test all
+// combinations up to 3 messages (to ensure that repeated messages are handled
+// correctly), and then just test the unique cases beyond that.
+//
+// Note the special cases: If the reference message is never received, the
+// matcher always passes; if the expected message is never received, the
+// matcher always fails. (The matcher definition is that it passes if the "a"
+// message was received AND (at least one instance of the "a" message meets the
+// specified relative ordering with respect to the "b" message, IF the "b"
+// message was present).)
 
 + (id)defaultTestSuite {
     SenTestSuite *testSuite = [[SenTestSuite alloc] initWithName:NSStringFromClass(self)];
 
-    // WARNING: If you get any of these names wrong, your test suite will
-    // abort (because of the exception we throw if a matching method cannot
-    // be found at runtime), but Xcode LIES and says your tests ran without
-    // issues. (So be sure to check the test log the first time after making
-    // changes here, and look in the debugger console to find out which is
-    // the offending selector name.)
-    //
-    // Because of this issue, and to support auto-completion in the editor,
-    // using actual selectors instead of strings might actually be preferable,
-    // despite the extra noise introduced by adding "@selector(...)" to each
-    // string. (We'd also have to switch to vararg methods, because selectors
-    // (SEL) can't be put into NSArrays.)
-    //
-    // Alternative idea: Could make the case strings plain text and convert
-    // to selector by removing spaces and camel-casing, e.g., "only expected
-    // message received" -> "caseOnlyExpectedMessageReceived".
-
     [testSuite addTest:
      [self testSuiteForMatcherSelector:@"haveReceived:beforeFirst:"
-         casesPassingMatcher:@[
-             @"caseExpectedMessageReceivedOnceBeforeReferenceMessage",
-             @"caseExpectedMessageReceivedMultipleTimesBeforeReferenceMessage",
-             @"caseExpectedMessageReceivedBeforeAndAfterReferenceMessage",
-             @"caseOnlyExpectedMessageReceived"
-         ]
-         casesFailingMatcher:@[
-             @"caseExpectedMessageReceivedOnceAfterReferenceMessage",
-             @"caseExpectedMessageReceivedMultipleTimesAfterReferenceMessage",
-             @"caseExpectedMessageReceivedOnceBetweenTwoReferenceMessages",
-             @"caseOnlyReferenceMessageReceived"
-         ]
-      ]];
+                   casesPassingMatcher:@"a,aa,ab,aaa,aab,aba,abb,abab,ababa"
+                   casesFailingMatcher:@",b,ba,bb,baa,bab,bba,bbb,baba"]];
+
+    [testSuite addTest:
+     [self testSuiteForMatcherSelector:@"haveReceived:beforeLast:"
+                   casesPassingMatcher:@"a,aa,ab,aaa,aab,aba,abb,bab,abab,baba,ababa"
+                   casesFailingMatcher:@",b,ba,bb,baa,bba,bbb"]];
 
     [testSuite addTest:
      [self testSuiteForMatcherSelector:@"haveReceived:afterFirst:"
-         casesPassingMatcher:@[
-             @"caseExpectedMessageReceivedOnceAfterReferenceMessage",
-             @"caseExpectedMessageReceivedMultipleTimesAfterReferenceMessage",
-             @"caseExpectedMessageReceivedOnceBetweenTwoReferenceMessages",
-             @"caseExpectedMessageReceivedBeforeAndAfterReferenceMessage",
-             @"caseOnlyExpectedMessageReceived"
-         ]
-         casesFailingMatcher:@[
-             @"caseExpectedMessageReceivedOnceBeforeReferenceMessage",
-             @"caseExpectedMessageReceivedMultipleTimesBeforeReferenceMessage",
-             @"caseOnlyReferenceMessageReceived"
-         ]
-      ]];
+                   casesPassingMatcher:@"a,aa,ba,aaa,aba,baa,bab,bba,abab,baba,ababa"
+                   casesFailingMatcher:@",b,ab,bb,aab,abb,bbb"]];
 
     [testSuite addTest:
      [self testSuiteForMatcherSelector:@"haveReceived:afterLast:"
-         casesPassingMatcher:@[
-             @"caseExpectedMessageReceivedOnceAfterReferenceMessage",
-             @"caseExpectedMessageReceivedMultipleTimesAfterReferenceMessage",
-             @"caseExpectedMessageReceivedBeforeAndAfterReferenceMessage",
-             @"caseOnlyExpectedMessageReceived"
-         ]
-         casesFailingMatcher:@[
-             @"caseExpectedMessageReceivedOnceBeforeReferenceMessage",
-             @"caseExpectedMessageReceivedMultipleTimesBeforeReferenceMessage",
-             @"caseExpectedMessageReceivedOnceBetweenTwoReferenceMessages",
-             @"caseOnlyReferenceMessageReceived"
-         ]
-      ]];
+                   casesPassingMatcher:@"a,aa,ba,aaa,aba,baa,bba,baba,ababa"
+                   casesFailingMatcher:@",b,ab,bb,aab,abb,bab,bbb,abab"]];
 
     return [testSuite autorelease];
-}
-
-#pragma mark - Test conditions
-
-- (void)caseExpectedMessageReceivedOnceBeforeReferenceMessage {
-    [self.matcherSubject raiseShields];
-    [self.matcherSubject engageHyperdrive];
-}
-
-- (void)caseExpectedMessageReceivedOnceAfterReferenceMessage {
-    [self.matcherSubject engageHyperdrive];
-    [self.matcherSubject raiseShields];
-}
-
-- (void)caseExpectedMessageReceivedMultipleTimesBeforeReferenceMessage {
-    [self.matcherSubject raiseShields];
-    [self.matcherSubject raiseShields];
-    [self.matcherSubject engageHyperdrive];
-}
-
-- (void)caseExpectedMessageReceivedMultipleTimesAfterReferenceMessage {
-    [self.matcherSubject engageHyperdrive];
-    [self.matcherSubject raiseShields];
-    [self.matcherSubject raiseShields];
-}
-
-- (void)caseExpectedMessageReceivedBeforeAndAfterReferenceMessage {
-    [self.matcherSubject raiseShields];
-    [self.matcherSubject engageHyperdrive];
-    [self.matcherSubject raiseShields];
-}
-
-- (void)caseExpectedMessageReceivedOnceBetweenTwoReferenceMessages {
-    [self.matcherSubject engageHyperdrive];
-    [self.matcherSubject raiseShields];
-    [self.matcherSubject engageHyperdrive];
-}
-
-- (void)caseOnlyExpectedMessageReceived {
-    [self.matcherSubject raiseShields];
-}
-
-- (void)caseOnlyReferenceMessageReceived {
-    [self.matcherSubject engageHyperdrive];
 }
 
 
@@ -200,8 +136,8 @@ matcherReferenceSelector:(SEL)aMatcherReferenceSelector
 #pragma mark - Test suite creation support
 
 + (SenTestSuite*)testSuiteForMatcherSelector:(NSString*)aMatcherSelectorString
-                         casesPassingMatcher:(NSArray*)selectorStringsForCasesPassingMatcher
-                         casesFailingMatcher:(NSArray*)selectorStringsForCasesFailingMatcher
+                         casesPassingMatcher:(NSString*)casesPassingMatcher
+                         casesFailingMatcher:(NSString*)casesFailingMatcher
 {
     SEL matcherSelector = [self selectorForString:aMatcherSelectorString
                                onInstancesOfClass:[KWHaveReceivedInOrderMatcher class]];
@@ -209,64 +145,36 @@ matcherReferenceSelector:(SEL)aMatcherReferenceSelector
     SenTestSuite *testSuite = [[SenTestSuite alloc] initWithName:testSuiteName];
 
     [self addTestCasesForMatcherSelector:matcherSelector
-              usingTestExerciseSelectors:selectorStringsForCasesPassingMatcher
                   whereMatcherShouldPass:YES
+                 forEachMessagePatternIn:casesPassingMatcher
                              toTestSuite:testSuite];
     [self addTestCasesForMatcherSelector:matcherSelector
-              usingTestExerciseSelectors:selectorStringsForCasesFailingMatcher
                   whereMatcherShouldPass:NO
+                 forEachMessagePatternIn:casesFailingMatcher
                              toTestSuite:testSuite];
 
     return testSuite;
 }
 
 + (void)addTestCasesForMatcherSelector:(SEL)aMatcherSelector
-            usingTestExerciseSelectors:(NSArray*)testExerciseSelectors
                 whereMatcherShouldPass:(BOOL)matcherShouldPass
+               forEachMessagePatternIn:(NSString*)messagePatternList
                            toTestSuite:(SenTestSuite*)testSuite
 {
     // Create a parameterized test case for each of the test exercise cases.
-    [testExerciseSelectors enumerateObjectsUsingBlock:
-     ^(id selectorString, NSUInteger index, BOOL *stop) {
-         SEL testExerciseSelector = [self selectorForString:selectorString
-                                         onInstancesOfClass:[self class]];
-
+    NSCharacterSet* patternSeparators = [NSCharacterSet characterSetWithCharactersInString:@","];
+    NSArray* messagePatterns =
+        [messagePatternList componentsSeparatedByCharactersInSet:patternSeparators];
+    [messagePatterns enumerateObjectsUsingBlock:
+     ^(NSString* messagePattern, NSUInteger index, BOOL *stop) {
          [testSuite addTest:[self testCaseForMatcherSelector:aMatcherSelector
-                                        testExerciseSelector:testExerciseSelector
+                                 usingExerciseMessagePattern:messagePattern
                                            matcherShouldPass:matcherShouldPass]];
      }];
 }
 
-// This may not need to be a suite; if there is only one test method, could
-// change the return type to a SenTestCase and clean up the output a bit.
-
-//+ (SenTestSuite*)testSuiteForMatcherSelector:(SEL)aMatcherSelector
-//                        testExerciseSelector:(SEL)aTestExerciseSelector
-//                           matcherShouldPass:(BOOL)theMatcherShouldPass
-//{
-//    NSString *testSuiteName = [NSString stringWithFormat:@"matcher '%@' with test case '%@'",
-//                               NSStringFromSelector(aMatcherSelector),
-//                               NSStringFromSelector(aTestExerciseSelector)];
-//    SenTestSuite *testSuite = [[SenTestSuite alloc] initWithName:testSuiteName];
-//
-//    // Scan test class for test methods; customize with test parameters and add
-//    // to test suite.
-//    [[self testInvocations] enumerateObjectsUsingBlock:
-//     ^(id testInvocation, NSUInteger index, BOOL *stop) {
-//         [testSuite addTest:[[[self alloc] initWithInvocation:testInvocation
-//                                              matcherSelector:aMatcherSelector
-//                                         testExerciseSelector:aTestExerciseSelector
-//                                      matcherExpectedSelector:@selector(raiseShields)
-//                                     matcherReferenceSelector:@selector(engageHyperdrive)
-//                                            matcherShouldPass:theMatcherShouldPass]
-//                             autorelease]];
-//     }];
-//
-//    return testSuite;
-//}
-
 + (SenTestCase*)testCaseForMatcherSelector:(SEL)aMatcherSelector
-                      testExerciseSelector:(SEL)aTestExerciseSelector
+               usingExerciseMessagePattern:(NSString*)anExerciseMessagePattern
                          matcherShouldPass:(BOOL)theMatcherShouldPass
 {
     NSInvocation *testInvocation =
@@ -277,7 +185,7 @@ matcherReferenceSelector:(SEL)aMatcherReferenceSelector
     SenTestCase* testCase =
         [[self alloc] initWithInvocation:testInvocation
                          matcherSelector:aMatcherSelector
-                    testExerciseSelector:aTestExerciseSelector
+                  exerciseMessagePattern:anExerciseMessagePattern
                  matcherExpectedSelector:@selector(raiseShields)
                 matcherReferenceSelector:@selector(engageHyperdrive)
                        matcherShouldPass:theMatcherShouldPass];
@@ -312,7 +220,7 @@ matcherReferenceSelector:(SEL)aMatcherReferenceSelector
 
 - (void)testMatcher {
     // Exercise the test spy, as specified for this test case.
-    [self performSelector:self.testExerciseSelector];
+    [self exerciseMatcherSubject];
 
     // Execute the particular matcher method selected for the test
     IMP matcherMethod = [self.matcher methodForSelector:self.matcherSelector];
@@ -326,7 +234,22 @@ matcherReferenceSelector:(SEL)aMatcherReferenceSelector
         STFail(@"Expected matcher %@ to %@ for condition: %@.",
                NSStringFromSelector(self.matcherSelector),
                self.matcherShouldPass ? @"pass" : @"report failure",
-               NSStringFromSelector(self.testExerciseSelector));
+               self.exerciseMessagePattern);
+    }
+}
+
+- (void)exerciseMatcherSubject {
+    NSString* messagePattern = self.exerciseMessagePattern;
+    NSUInteger patternLength = [messagePattern length];
+    for (NSUInteger i = 0; i < patternLength; i++) {
+        unichar messageCode = [messagePattern characterAtIndex:i];
+        if (messageCode == 'a') {
+            [self.matcherSubject performSelector:self.matcherExpectedSelector]; // assumes no-arg method
+        }
+        else if (messageCode == 'b') {
+            [self.matcherSubject performSelector:self.matcherReferenceSelector];
+        }
+        // else, ignore code
     }
 }
 
@@ -366,6 +289,9 @@ matcherReferenceSelector:(SEL)aMatcherReferenceSelector
     [testSuite addTest:
      [self testCaseWithMatcherSelector:@selector(haveReceived:beforeFirst:)
                   expectedOrderMessage:@"before first"]];
+    [testSuite addTest:
+     [self testCaseWithMatcherSelector:@selector(haveReceived:beforeLast:)
+                  expectedOrderMessage:@"before last"]];
     [testSuite addTest:
      [self testCaseWithMatcherSelector:@selector(haveReceived:afterFirst:)
                   expectedOrderMessage:@"after first"]];
