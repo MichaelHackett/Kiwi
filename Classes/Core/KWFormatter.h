@@ -12,6 +12,7 @@
 #pragma mark - Getting Descriptions
 
 + (NSString *)formatObject:(id)anObject;
++ (NSString *)formatObjectIncludingClass:(id)anObject;
 
 #pragma mark - Getting Phrases
 
