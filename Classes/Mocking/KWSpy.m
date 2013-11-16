@@ -138,6 +138,10 @@
 
 #pragma mark - Verification
 
+- (NSUInteger)countOfReceivedMessages {
+    return [_receivedInvocations count];
+}
+
 - (NSUInteger)countOfReceivedMessagesMatchingPattern:(KWMessagePattern *)aMessagePattern {
     return [_receivedInvocations countOfObjectsPassingTest:
         ^(id invocation, NSUInteger index, BOOL *stop) {
@@ -150,6 +154,14 @@
         ^(id invocation, NSUInteger index, BOOL *stop) {
             return [aMessagePattern matchesInvocation:invocation];
         }];
+}
+
+- (NSArray*)receivedMessagesSelectorNames {
+    NSMutableArray* selectorNames = [NSMutableArray arrayWithCapacity:[_receivedInvocations count]];
+    for (NSInvocation *invocation in _receivedInvocations) {
+        [selectorNames addObject:NSStringFromSelector(invocation.selector)];
+    }
+    return [NSArray arrayWithArray:selectorNames];
 }
 
 //- (BOOL)hasReceivedMessage:(SEL)selector {

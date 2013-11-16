@@ -51,6 +51,7 @@ extern "C" {
 #import "KWGenericMatcher.h"
 #import "KWHaveMatcher.h"
 #import "KWHaveReceivedMatcher.h"
+#import "KWHaveReceivedAnyMessageMatcher.h"
 #import "KWHaveReceivedInOrderMatcher.h"
 #import "KWHaveValueMatcher.h"
 #import "KWInequalityMatcher.h"

@@ -22,7 +22,9 @@
 - (void)clearRecordedInvocations;  // intentionally named to avoid conflicts with mocked classes
 
 #pragma mark - Verification
+- (NSUInteger)countOfReceivedMessages;
 - (NSUInteger)countOfReceivedMessagesMatchingPattern:(KWMessagePattern *)aMessagePattern;
 - (NSIndexSet*)indexesOfReceivedMessagesMatchingPattern:(KWMessagePattern *)aMessagePattern;
+- (NSArray*)receivedMessagesSelectorNames;
 
 @end
