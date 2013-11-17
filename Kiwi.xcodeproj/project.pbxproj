@@ -160,6 +160,10 @@
 		4CA7555C1837EE52006D7618 /* KWHaveReceivedAnyMessageMatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CA7555A1837EE52006D7618 /* KWHaveReceivedAnyMessageMatcher.m */; };
 		4CA7555D1837EE52006D7618 /* KWHaveReceivedAnyMessageMatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CA7555A1837EE52006D7618 /* KWHaveReceivedAnyMessageMatcher.m */; };
 		4CA7555F1837F554006D7618 /* KWHaveReceivedAnyMessageMatcherTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CA7555E1837F554006D7618 /* KWHaveReceivedAnyMessageMatcherTest.m */; };
+		4CA7556118387629006D7618 /* KWHaveReceivedAnyMessageMatcher.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4CA755561837EE40006D7618 /* KWHaveReceivedAnyMessageMatcher.h */; };
+		4CA7556218387688006D7618 /* KWHaveReceivedMatcher.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4C08F3CA1792FDD700C9C85D /* KWHaveReceivedMatcher.h */; };
+		4CA755631838768C006D7618 /* KWHaveReceivedInOrderMatcher.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4C54378517D651320037D65E /* KWHaveReceivedInOrderMatcher.h */; };
+		4CA7556418387695006D7618 /* KWHaveReceivedAnyMessageMatcher.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4CA755561837EE40006D7618 /* KWHaveReceivedAnyMessageMatcher.h */; };
 		4CEB799F17892B9000EF5631 /* KWInvocationCopier.h in Headers */ = {isa = PBXBuildFile; fileRef = 4CEB799D17892B8F00EF5631 /* KWInvocationCopier.h */; settings = {ATTRIBUTES = (); }; };
 		4CEB79A017892B9000EF5631 /* KWInvocationCopier.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CEB799E17892B9000EF5631 /* KWInvocationCopier.m */; };
 		4E3C5DB21716C34900835B62 /* KWRegularExpressionPatternMatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E3C5DB01716C34900835B62 /* KWRegularExpressionPatternMatcher.h */; };
@@ -857,7 +861,6 @@
 			dstSubfolderSpec = 16;
 			files = (
 				4C54379317D663F40037D65E /* NSArray+KiwiMatchAdditions.h in CopyFiles */,
-				4C54379217D663D00037D65E /* KWHaveReceivedInOrderMatcher.h in CopyFiles */,
 				44FC0E6716B6377D0050D616 /* Kiwi.h in CopyFiles */,
 				44FC0E6816B6377D0050D616 /* KiwiBlockMacros.h in CopyFiles */,
 				44FC0E6916B6377D0050D616 /* KiwiConfiguration.h in CopyFiles */,
@@ -905,6 +908,8 @@
 				44FC0E9516B6377D0050D616 /* KWGenericMatchingAdditions.h in CopyFiles */,
 				44FC0E9616B6377D0050D616 /* KWHaveMatcher.h in CopyFiles */,
 				4C6D1FBE17A059A900D6F431 /* KWHaveReceivedMatcher.h in CopyFiles */,
+				4CA7556118387629006D7618 /* KWHaveReceivedAnyMessageMatcher.h in CopyFiles */,
+				4C54379217D663D00037D65E /* KWHaveReceivedInOrderMatcher.h in CopyFiles */,
 				44FC0E9716B6377D0050D616 /* KWHaveValueMatcher.h in CopyFiles */,
 				44FC0E9916B6377D0050D616 /* KWInequalityMatcher.h in CopyFiles */,
 				44FC0E9A16B6377D0050D616 /* KWIntercept.h in CopyFiles */,
@@ -1008,6 +1013,9 @@
 				DA084E3D17E3838100592D5A /* KWGenericMatcher.h in CopyFiles */,
 				DA084E3E17E3838100592D5A /* KWGenericMatchingAdditions.h in CopyFiles */,
 				DA084E3F17E3838100592D5A /* KWHaveMatcher.h in CopyFiles */,
+				4CA7556218387688006D7618 /* KWHaveReceivedMatcher.h in CopyFiles */,
+				4CA7556418387695006D7618 /* KWHaveReceivedAnyMessageMatcher.h in CopyFiles */,
+				4CA755631838768C006D7618 /* KWHaveReceivedInOrderMatcher.h in CopyFiles */,
 				DA084E4017E3838100592D5A /* KWHaveValueMatcher.h in CopyFiles */,
 				DA084E4117E3838100592D5A /* KWInequalityMatcher.h in CopyFiles */,
 				DA084E4217E3838100592D5A /* KWIntercept.h in CopyFiles */,
@@ -1929,6 +1937,7 @@
 				9F982D8116A802920030A0B1 /* KWGenericMatchingAdditions.h in Headers */,
 				9F982D8516A802920030A0B1 /* KWHaveMatcher.h in Headers */,
 				4C08F3CF1792FE1200C9C85D /* KWHaveReceivedMatcher.h in Headers */,
+				4CA755581837EE40006D7618 /* KWHaveReceivedAnyMessageMatcher.h in Headers */,
 				4C54378917D6514D0037D65E /* KWHaveReceivedInOrderMatcher.h in Headers */,
 				9F982D8916A802920030A0B1 /* KWHaveValueMatcher.h in Headers */,
 				9F982D8F16A802920030A0B1 /* KWInequalityMatcher.h in Headers */,
@@ -1981,7 +1990,6 @@
 				4E3C5DB31716C34900835B62 /* KWRegularExpressionPatternMatcher.h in Headers */,
 				4E7659AC172DAC8E00105B93 /* KWContainStringMatcher.h in Headers */,
 				C533F7D417462CAA000CAB02 /* KWSymbolicator.h in Headers */,
-				4CA755581837EE40006D7618 /* KWHaveReceivedAnyMessageMatcher.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2139,6 +2147,7 @@
 				9F982D8016A802920030A0B1 /* KWGenericMatchingAdditions.h in Headers */,
 				9F982D8416A802920030A0B1 /* KWHaveMatcher.h in Headers */,
 				4C08F3CC1792FDD700C9C85D /* KWHaveReceivedMatcher.h in Headers */,
+				4CA755571837EE40006D7618 /* KWHaveReceivedAnyMessageMatcher.h in Headers */,
 				4C54378617D651320037D65E /* KWHaveReceivedInOrderMatcher.h in Headers */,
 				9F982D8816A802920030A0B1 /* KWHaveValueMatcher.h in Headers */,
 				9F982D8E16A802920030A0B1 /* KWInequalityMatcher.h in Headers */,
@@ -2193,7 +2202,6 @@
 				C533F7D317462CAA000CAB02 /* KWSymbolicator.h in Headers */,
 				37828763177F860B00BCD40F /* Kiwi-Prefix.pch in Headers */,
 				4A71048017CC016600A7B718 /* KWLetNode.h in Headers */,
-				4CA755571837EE40006D7618 /* KWHaveReceivedAnyMessageMatcher.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
