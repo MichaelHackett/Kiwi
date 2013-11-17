@@ -5,8 +5,6 @@
 #import "KWMessagePattern.h"
 #import "NSArray+KiwiMatchAdditions.h"
 
-//#import "KWStringUtilities.h"
-
 
 // NOTE: The mockedClass property does not appear to be used within Kiwi
 // outside of the KWMock class, and if the -class method was overridden
@@ -106,13 +104,13 @@
 //
 //}
 
-// Not currently needed
-//#pragma mark - Properties
-//
-//- (NSArray *)receivedInvocations {
-//    // Returns an immutable copy of the spy's invocation record.
-//    return [NSArray arrayWithArray:_receivedInvocations];
-//}
+
+#pragma mark - Properties
+
+- (NSArray *)receivedInvocations {
+    // Returns an immutable copy of the spy's invocation record.
+    return [NSArray arrayWithArray:_receivedInvocations];
+}
 
 
 #pragma mark - Recording messages
@@ -136,55 +134,7 @@
 }
 
 
-#pragma mark - Verification
-
-- (NSUInteger)countOfReceivedMessages {
-    return [_receivedInvocations count];
-}
-
-- (NSUInteger)countOfReceivedMessagesMatchingPattern:(KWMessagePattern *)aMessagePattern {
-    return [_receivedInvocations countOfObjectsPassingTest:
-        ^(id invocation, NSUInteger index, BOOL *stop) {
-            return [aMessagePattern matchesInvocation:invocation];
-        }];
-}
-
-- (NSIndexSet*)indexesOfReceivedMessagesMatchingPattern:(KWMessagePattern *)aMessagePattern {
-    return [_receivedInvocations indexesOfObjectsPassingTest:
-        ^(id invocation, NSUInteger index, BOOL *stop) {
-            return [aMessagePattern matchesInvocation:invocation];
-        }];
-}
-
-- (NSArray*)receivedMessagesSelectorNames {
-    NSMutableArray* selectorNames = [NSMutableArray arrayWithCapacity:[_receivedInvocations count]];
-    for (NSInvocation *invocation in _receivedInvocations) {
-        [selectorNames addObject:NSStringFromSelector(invocation.selector)];
-    }
-    return [NSArray arrayWithArray:selectorNames];
-}
-
-//- (BOOL)hasReceivedMessage:(SEL)selector {
-//    KWMessagePattern *messagePattern =
-//        [KWMessagePattern messagePatternWithSelector:selector];
-//    return [self hasReceivedMessageMatchingPattern:messagePattern];
-//}
-
-
 #pragma mark - Handling invocations (private)
-
-//- (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector {
-//    NSMethodSignature *methodSignature =
-//        [self.mockedClass instanceMethodSignatureForSelector:aSelector];
-////    if (methodSignature == nil) {
-////        methodSignature = [self mockedProtocolMethodSignatureForSelector:aSelector];
-////    }
-//    if (methodSignature == nil) {
-//        NSString *encoding = KWEncodingForVoidMethod();
-//        methodSignature = [NSMethodSignature signatureWithObjCTypes:[encoding UTF8String]];
-//    }
-//    return methodSignature;
-//}
 
 - (void)forwardInvocation:(NSInvocation *)invocation {
     [self recordInvocation:invocation];

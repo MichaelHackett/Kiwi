@@ -11,6 +11,8 @@
 
 @interface KWSpy : KWMock
 
+@property (copy, readonly, nonatomic) NSArray *receivedInvocations;
+
 #pragma mark - Initializing
 - (id)initForClass:(Class)aClass;
 - (id)initForProtocol:(Protocol *)aProtocol;
@@ -20,11 +22,5 @@
 #pragma mark - Recording messages
 - (void)recordInvocation:(NSInvocation *)anInvocation;
 - (void)clearRecordedInvocations;  // intentionally named to avoid conflicts with mocked classes
-
-#pragma mark - Verification
-- (NSUInteger)countOfReceivedMessages;
-- (NSUInteger)countOfReceivedMessagesMatchingPattern:(KWMessagePattern *)aMessagePattern;
-- (NSIndexSet*)indexesOfReceivedMessagesMatchingPattern:(KWMessagePattern *)aMessagePattern;
-- (NSArray*)receivedMessagesSelectorNames;
 
 @end

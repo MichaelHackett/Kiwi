@@ -63,7 +63,7 @@
     }
     KWSpy *spy = (KWSpy *)self.subject;
 
-    NSUInteger matchCount = [spy countOfReceivedMessagesMatchingPattern:self.messagePattern];
+    NSUInteger matchCount = [[self.messagePattern indexesOfMatchingInvocations:spy.receivedInvocations] count];
     switch (self.messageCountType) {
         case KWCountTypeExact:
             return matchCount == self.messageCount;
@@ -93,7 +93,7 @@
         return @"unknown times";
     }
     KWSpy *spy = (KWSpy *)self.subject;
-    NSUInteger receivedCount = [spy countOfReceivedMessagesMatchingPattern:self.messagePattern];
+    NSUInteger receivedCount = [[self.messagePattern indexesOfMatchingInvocations:spy.receivedInvocations] count];
     return [KWFormatter phraseForCount:receivedCount];
 }
 

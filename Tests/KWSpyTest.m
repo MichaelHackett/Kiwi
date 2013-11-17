@@ -53,7 +53,8 @@
     [self.spy computeParsecs];
     KWMessagePattern *messagePattern =
         [KWMessagePattern messagePatternWithSelector:@selector(computeParsecs)];
-    STAssertEquals([self.spy countOfReceivedMessagesMatchingPattern:messagePattern], (NSUInteger)1,
+    STAssertEquals([[messagePattern indexesOfMatchingInvocations:[self.spy receivedInvocations]] count],
+                   (NSUInteger)1,
                    @"expected spy to report receiving sent message");
 }
 
@@ -61,12 +62,12 @@
     [self.spy computeParsecs];
     [self.spy fightersInSquadron:@"one"];
     [self.spy clearRecordedInvocations];
-    STAssertEquals([self.spy countOfReceivedMessagesMatchingPattern:
-                    [KWMessagePattern messagePatternWithSelector:@selector(computeParsecs)]],
+    KWMessagePattern *messagePattern = [KWMessagePattern messagePatternWithSelector:@selector(computeParsecs)];
+    STAssertEquals([[messagePattern indexesOfMatchingInvocations:[self.spy receivedInvocations]] count],
                    (NSUInteger)0,
                    @"expected spy to report not having received message after reseting");
-    STAssertEquals([self.spy countOfReceivedMessagesMatchingPattern:
-                    [KWMessagePattern messagePatternWithSelector:@selector(fightersInSquadron:)]],
+    messagePattern = [KWMessagePattern messagePatternWithSelector:@selector(fightersInSquadron:)];
+    STAssertEquals([[messagePattern indexesOfMatchingInvocations:[self.spy receivedInvocations]] count],
                    (NSUInteger)0,
                    @"expected spy to report not having received message after reseting");
 }

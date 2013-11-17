@@ -147,7 +147,7 @@ typedef enum {
     }
     KWSpy *spy = (KWSpy *)self.subject;
 
-    return [spy indexesOfReceivedMessagesMatchingPattern:aMessagePattern];
+    return [aMessagePattern indexesOfMatchingInvocations:spy.receivedInvocations];
 }
 
 

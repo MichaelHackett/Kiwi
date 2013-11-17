@@ -30,7 +30,7 @@
     }
     KWSpy *spy = (KWSpy *)self.subject;
 
-    return ([spy countOfReceivedMessages] > 0);
+    return ([spy.receivedInvocations count] > 0);
 }
 
 
@@ -48,7 +48,12 @@
         return nil;
     }
     KWSpy *spy = (KWSpy *)self.subject;
-    return [[spy receivedMessagesSelectorNames] componentsJoinedByString:@", "];
+    NSArray *receivedInvocations = spy.receivedInvocations;
+    NSMutableArray* selectorNames = [NSMutableArray arrayWithCapacity:[receivedInvocations count]];
+    for (NSInvocation *invocation in receivedInvocations) {
+        [selectorNames addObject:NSStringFromSelector(invocation.selector)];
+    }
+    return [selectorNames componentsJoinedByString:@", "];
 }
 
 - (NSString *)failureMessageForShould {
