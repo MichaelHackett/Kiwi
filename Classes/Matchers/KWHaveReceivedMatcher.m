@@ -46,17 +46,16 @@
     ];
 }
 
-// NTS: It appears to me that -canMatchSubject: is just for selecting a
-// compatible matcher when more than one implements the same matcher string.
-// Returning NO does not produce an error message (except that there is
-// probably some sort of 'no such matcher' error produced if no suitable
-// matcher is found). Other matcher classes perform the type validation in
-// the -evaluate method.
 
 
 #pragma mark - Matching
 
++ (BOOL)canMatchSubject:(id)subject {
+    return ([subject isKindOfClass:[KWSpy class]]);
+}
+
 - (BOOL)evaluate {
+    // sanity check --- probably should not be allowed to get here unless subject is a spy
     if (![self.subject isKindOfClass:[KWSpy class]]) {
         [NSException raise:@"KWMatcherException" format:@"subject must be a KWSpy"];
         return NO;

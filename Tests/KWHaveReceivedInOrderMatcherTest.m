@@ -458,4 +458,38 @@ matcherReferenceSelector:(SEL)aMatcherReferenceSelector
 
 @end
 
+
+@interface KWHaveReceivedInOrderMatcherSubjectTypeTest : SenTestCase
+@end
+@implementation KWHaveReceivedInOrderMatcherSubjectTypeTest
+
+- (void)testItCannotMatchASubjectThatIsNotATestSpy {
+    STAssertFalse([KWHaveReceivedInOrderMatcher canMatchSubject:[Cruiser cruiser]],
+                  @"Expected canMatchSubject: to return NO");
+}
+
+- (void)testItCanMatchASubjectThatIsATestSpy {
+    id spy = [KWSpy spyForClass:[Cruiser class]];
+    STAssertTrue([KWHaveReceivedInOrderMatcher canMatchSubject:spy],
+                 @"Expected canMatchSubject: to return YES");
+}
+
+// Probably an unnecessary specification, if there is no way for the matcher
+// to be evaluated without the verifier first checking with `+canMatchSubject:`.
+// But I can't figure out a suitable test to verify this, so I'll leave this
+// for now.
+- (void)testMatcherShouldFailIfSubjectIsNotATestSpy {
+    Cruiser *subject = [Cruiser cruiser];
+    KWHaveReceivedInOrderMatcher *matcher =
+        [KWHaveReceivedInOrderMatcher matcherWithSubject:subject];
+    [matcher haveReceived:@selector(raiseShields)
+              beforeFirst:@selector(engageHyperdrive)];
+    STAssertThrowsSpecificNamed([matcher evaluate],
+                                NSException,
+                                @"KWMatcherException",
+                                @"Expected exception because subject is not a KWSpy.");
+}
+
+@end
+
 #endif // #if KW_TESTS_ENABLED

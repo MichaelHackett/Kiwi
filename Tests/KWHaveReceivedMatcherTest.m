@@ -390,11 +390,34 @@
 @end
 @implementation KWHaveReceivedMatcherSubjectTypeTest
 
-- (void)testItShouldRequireSubjectToBeTestSpy {
+- (void)testItCannotMatchASubjectThatIsNotATestSpy {
+    STAssertFalse([KWHaveReceivedMatcher canMatchSubject:[Cruiser cruiser]],
+                  @"Expected canMatchSubject: to return NO");
+}
+
+- (void)testItCanMatchASubjectThatIsATestSpy {
+    id spy = [KWSpy spyForClass:[Cruiser class]];
+    STAssertTrue([KWHaveReceivedMatcher canMatchSubject:spy],
+                  @"Expected canMatchSubject: to return YES");
+}
+
+// Probably an unnecessary specification, if there is no way for the matcher
+// to be evaluated without the verifier first checking with `+canMatchSubject:`.
+// But I can't figure out a suitable test to verify this, so I'll leave this
+// for now.
+- (void)testMatcherShouldFailIfSubjectIsNotATestSpy {
     Cruiser *subject = [Cruiser cruiser];
+
+//    [[KWExampleSuiteBuilder sharedExampleSuiteBuilder] buildExampleSuite:^{
+//        describe(@"haveReceived matcher", ^{
+//            it(@"is not supported for non-spy objects", ^{
+//                [[subject should] haveReceived:@selector(raiseShields)];
+//            });
+//        });
+//    }];
+
     KWHaveReceivedMatcher *matcher =
         [KWHaveReceivedMatcher matcherWithSubject:subject];
-
     [matcher haveReceived:@selector(raiseShields)];
     STAssertThrowsSpecificNamed([matcher evaluate],
                                 NSException,

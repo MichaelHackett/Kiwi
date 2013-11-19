@@ -22,6 +22,10 @@
 
 #pragma mark - Matching
 
++ (BOOL)canMatchSubject:(id)subject {
+    return ([subject isKindOfClass:[KWSpy class]]);
+}
+
 - (BOOL)evaluate {
     // TODO: remove this duplication
     if (![self.subject isKindOfClass:[KWSpy class]]) {

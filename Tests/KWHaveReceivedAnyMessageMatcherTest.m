@@ -94,6 +94,21 @@
 @end
 @implementation KWHaveReceivedAnyMessageMatcherSubjectTypeTest
 
+- (void)testItCannotMatchASubjectThatIsNotATestSpy {
+    STAssertFalse([KWHaveReceivedAnyMessageMatcher canMatchSubject:[Cruiser cruiser]],
+                  @"Expected canMatchSubject: to return NO");
+}
+
+- (void)testItCanMatchASubjectThatIsATestSpy {
+    id spy = [KWSpy spyForClass:[Cruiser class]];
+    STAssertTrue([KWHaveReceivedAnyMessageMatcher canMatchSubject:spy],
+                 @"Expected canMatchSubject: to return YES");
+}
+
+// Probably an unnecessary specification, if there is no way for the matcher
+// to be evaluated without the verifier first checking with `+canMatchSubject:`.
+// But I can't figure out a suitable test to verify this, so I'll leave this
+// for now.
 - (void)testItShouldRequireSubjectToBeTestSpy {
     Cruiser *subject = [Cruiser cruiser];
     KWHaveReceivedAnyMessageMatcher *matcher =
