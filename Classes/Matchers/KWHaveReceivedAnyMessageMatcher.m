@@ -69,7 +69,7 @@
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"received any messages"];
+    return [NSString stringWithFormat:@"have received any messages"];
 }
 
 

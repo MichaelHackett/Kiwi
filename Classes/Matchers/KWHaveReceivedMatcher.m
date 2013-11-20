@@ -104,7 +104,7 @@
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"received message %@ %@",
+    return [NSString stringWithFormat:@"have received message %@ %@",
             [self expectedMessagePatternAsString],
             [self expectedCountPhrase]];
 }

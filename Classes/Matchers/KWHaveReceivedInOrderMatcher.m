@@ -162,7 +162,7 @@ typedef enum {
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"received message %@ %@ %@",
+    return [NSString stringWithFormat:@"have received message %@ %@ %@",
             NSStringFromSelector(self.expectedSelector),
             [self messageOrderString],
             NSStringFromSelector(self.referenceSelector)];
