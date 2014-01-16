@@ -6,6 +6,7 @@
 
 #import "KWMessageTracker.h"
 #import "KWMessagePattern.h"
+#import "KWFormatter.h"
 #import "NSObject+KiwiStubAdditions.h"
 
 @interface KWMessageTracker()
@@ -72,33 +73,12 @@
 
 #pragma mark - Getting Phrases
 
-- (NSString *)phraseForCount:(NSUInteger)aCount {
-    if (aCount == 1)
-        return @"1 time";
-
-    return [NSString stringWithFormat:@"%d times", (int)aCount];
-}
-
 - (NSString *)expectedCountPhrase {
-    NSString *countPhrase = [self phraseForCount:self.count];
-
-    switch (self.countType) {
-        case KWCountTypeExact:
-            return [NSString stringWithFormat:@"exactly %@", countPhrase];
-        case KWCountTypeAtLeast:
-            return [NSString stringWithFormat:@"at least %@", countPhrase];
-        case KWCountTypeAtMost:
-            return [NSString stringWithFormat:@"at most %@", countPhrase];
-        default:
-            break;
-    }
-
-    assert(0 && "should never reach here");
-    return nil;
+    return [KWFormatter phraseForCountType:self.countType count:self.count];
 }
 
 - (NSString *)receivedCountPhrase {
-    return [self phraseForCount:self.receivedCount];
+    return [KWFormatter phraseForCount:self.receivedCount];
 }
 
 #pragma mark - Debugging

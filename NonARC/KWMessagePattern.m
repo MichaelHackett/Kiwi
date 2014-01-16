@@ -169,6 +169,16 @@
     return self.selector == [anInvocation selector] && [self argumentFiltersMatchInvocationArguments:anInvocation];
 }
 
+- (NSIndexSet *)indexesOfMatchingInvocations:(NSArray *)invocations {
+    NSMutableIndexSet *matchingIndexes = [NSMutableIndexSet indexSet];
+    [invocations enumerateObjectsUsingBlock:^(id invocation, NSUInteger index, BOOL *stop) {
+        if ([self matchesInvocation:invocation]) {
+            [matchingIndexes addIndex:index];
+        }
+    }];
+    return [[matchingIndexes copy] autorelease];
+}
+
 #pragma mark - Comparing Message Patterns
 
 - (NSUInteger)hash {

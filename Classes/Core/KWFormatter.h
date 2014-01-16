@@ -5,6 +5,7 @@
 //
 
 #import "KiwiConfiguration.h"
+#import "KWCountType.h"
 
 @interface KWFormatter : NSObject
 
@@ -12,5 +13,10 @@
 
 + (NSString *)formatObject:(id)anObject;
 + (NSString *)formatObjectIncludingClass:(id)anObject;
+
+#pragma mark - Getting Phrases
+
++ (NSString *)phraseForCount:(NSUInteger)aCount;
++ (NSString *)phraseForCountType:(KWCountType)aCountType count:(NSUInteger)aCount;
 
 @end

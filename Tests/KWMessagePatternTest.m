@@ -164,6 +164,28 @@
     STAssertFalse([messagePattern2 isEqual:messagePattern1], @"expected message patterns to compare as not equal");
 }
 
+
+#pragma mark - Invocation list matching
+
+- (void)testItShouldApplyMessagePatternToInvocationsList {
+    Robot *target = [Robot new];
+    NSArray *invocations = @[[NSInvocation invocationWithTarget:target selector:@selector(speak:) messageArguments:@"Hello"],
+                             [NSInvocation invocationWithTarget:target selector:@selector(speak:) messageArguments:@"Hola"],
+                             [NSInvocation invocationWithTarget:target selector:@selector(speak:ofType:) messageArguments:@"I am a", [Robot class]],
+                             [NSInvocation invocationWithTarget:target selector:@selector(speak:) messageArguments:@"Later, dude!"],
+                             [NSInvocation invocationWithTarget:target selector:@selector(speak:ofType:) messageArguments:@"reset", [Robot class]]
+                             ];
+
+    KWMessagePattern *messagePattern = [KWMessagePattern messagePatternWithSelector:@selector(speak:)];
+    NSMutableIndexSet *expectedIndexes = [NSMutableIndexSet indexSet];
+    [expectedIndexes addIndex:0];
+    [expectedIndexes addIndex:1];
+    [expectedIndexes addIndex:3];
+    STAssertEqualObjects([messagePattern indexesOfMatchingInvocations:invocations],
+                         expectedIndexes,
+                         @"expected index sets to match");
+}
+
 @end
 
 #endif // #if KW_TESTS_ENABLED

@@ -133,6 +133,13 @@
 }
 
 #pragma mark -
+#pragma mark Communication
+
+- (void)sendMessage:(NSString*)aMessage toShipWithCallSign:(NSString*)aCallSign repeatCount:(NSUInteger)aCount {
+    NSLog(@"sending message: '%@' to %@", aMessage, aCallSign);
+}
+
+#pragma mark -
 #pragma mark Raising
 
 - (void)raise {
