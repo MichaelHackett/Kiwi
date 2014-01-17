@@ -863,7 +863,7 @@
 		44FC0E6516B6370E0050D616 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = "${PRODUCT_NAME}";
+			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
 				88E0EC591852D533008E998A /* KWLet.h in CopyFiles */,
