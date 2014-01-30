@@ -170,13 +170,15 @@
 }
 
 - (NSIndexSet *)indexesOfMatchingInvocations:(NSArray *)invocations {
-    NSMutableIndexSet *matchingIndexes = [NSMutableIndexSet indexSet];
-    [invocations enumerateObjectsUsingBlock:^(id invocation, NSUInteger index, BOOL *stop) {
-        if ([self matchesInvocation:invocation]) {
-            [matchingIndexes addIndex:index];
-        }
+    return [invocations indexesOfObjectsPassingTest:^BOOL(id invocation, NSUInteger idx, BOOL *stop) {
+        return [self matchesInvocation:invocation];
     }];
-    return [[matchingIndexes copy] autorelease];
+}
+
+- (NSIndexSet *)indexesOfNonmatchingInvocations:(NSArray *)invocations {
+    return [invocations indexesOfObjectsPassingTest:^BOOL(id invocation, NSUInteger idx, BOOL *stop) {
+        return ![self matchesInvocation:invocation];
+    }];
 }
 
 #pragma mark - Comparing Message Patterns

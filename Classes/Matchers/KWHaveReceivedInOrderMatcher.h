@@ -63,4 +63,7 @@ currently in place.
 - (void)haveReceived:(SEL)aSelector afterFirst:(SEL)anotherSelector;
 - (void)haveReceived:(SEL)aSelector afterLast:(SEL)anotherSelector;
 
+- (void)haveReceivedAnyMessagesBeforeFirst:(SEL)selector;
+- (void)haveReceivedAnyMessagesAfterLast:(SEL)selector;
+
 @end

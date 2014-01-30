@@ -92,8 +92,9 @@ typedef enum {
 // appears *after* the reference message. If the expected message has not been
 // received at all, the method always returns +NSNotFound+.
 - (NSUInteger)expectedMessageOrdinal {
-    NSIndexSet* matchingIndexes =
-        [self indexesOfReceivedMessagesMatchingSelector:self.expectedSelector];
+    NSIndexSet* matchingIndexes = self.expectedSelector
+        ? [self indexesOfReceivedMessagesMatchingSelector:self.expectedSelector]
+        : [self indexesOfReceivedMessagesNotMatchingSelector:self.referenceSelector];
     switch (self.expectedMessagePosition) {
         case KWHaveReceivedMessageOrderBeforeFirst:
         case KWHaveReceivedMessageOrderBeforeLast: {
@@ -137,6 +138,11 @@ typedef enum {
     return [self indexesOfReceivedMessagesMatchingPattern:messagePattern];
 }
 
+- (NSIndexSet*)indexesOfReceivedMessagesNotMatchingSelector:(SEL)aSelector {
+    KWMessagePattern *messagePattern = [KWMessagePattern messagePatternWithSelector:aSelector];
+    return [self indexesOfReceivedMessagesNotMatchingPattern:messagePattern];
+}
+
 - (NSIndexSet*)indexesOfReceivedMessagesMatchingPattern:(KWMessagePattern*)aMessagePattern {
     // Sanity check: If matcher subject is not a test spy, stop and return an empty set.
     if (![self.subject isKindOfClass:[KWSpy class]]) {
@@ -145,6 +151,15 @@ typedef enum {
     KWSpy *spy = (KWSpy *)self.subject;
 
     return [aMessagePattern indexesOfMatchingInvocations:spy.receivedInvocations];
+}
+
+- (NSIndexSet*)indexesOfReceivedMessagesNotMatchingPattern:(KWMessagePattern*)aMessagePattern {
+    if (![self.subject isKindOfClass:[KWSpy class]]) {
+        return [NSIndexSet indexSet];
+    }
+    KWSpy *spy = (KWSpy *)self.subject;
+
+    return [aMessagePattern indexesOfNonmatchingInvocations:spy.receivedInvocations];
 }
 
 
@@ -216,6 +231,16 @@ typedef enum {
     self.referenceSelector = anotherSelector;
     self.expectedMessagePosition = KWHaveReceivedMessageOrderAfterLast;
 }
+
+- (void)haveReceivedAnyMessagesBeforeFirst:(SEL)selector {
+    [self haveReceived:NULL beforeFirst:selector];
+}
+
+- (void)haveReceivedAnyMessagesAfterLast:(SEL)selector {
+    [self haveReceived:NULL afterLast:selector];
+}
+
+
 
 
 #pragma mark - Internal matcher configuration support
