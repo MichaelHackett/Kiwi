@@ -2,8 +2,7 @@
 //  KWHaveReceivedInOrderMatcherTest.m
 //  Kiwi
 //
-//  Created by Michael on 2013-09-03.
-//  Copyright (c) 2013 Allen Ding. All rights reserved.
+//  Copyright 2013-4 Michael Hackett. All rights reserved.
 //
 
 #import "Kiwi.h"
@@ -61,7 +60,7 @@
 
 - (id)initWithInvocation:(NSInvocation *)anInvocation
          matcherSelector:(SEL)aMatcherSelector
-  exerciseMessagePattern:(NSString*)anExerciseMessagePattern
+  exerciseMessagePattern:(NSString *)anExerciseMessagePattern
  matcherExpectedSelector:(SEL)aMatcherExpectedSelector
 matcherReferenceSelector:(SEL)aMatcherReferenceSelector
        matcherShouldPass:(BOOL)theMatcherShouldPass
@@ -209,7 +208,7 @@ matcherReferenceSelector:(SEL)aMatcherReferenceSelector
 #pragma mark - Parameterized test case execution
 
 - (void)setUp {
-    self.matcherSubject = [KWSpy spyForClass:[Cruiser class]];
+    self.matcherSubject = [KWSpy spyForClass:[Carrier class]];
     self.matcher = [KWHaveReceivedInOrderMatcher matcherWithSubject:self.matcherSubject];
 }
 
@@ -254,6 +253,100 @@ matcherReferenceSelector:(SEL)aMatcherReferenceSelector
 }
 
 @end
+
+
+
+#pragma mark - "Any Message" ordered matchers
+
+@interface KWHaveReceivedAnythingBeforeSelectorMatcherTest : SenTestCase
+
+// Subject of tests
+@property (nonatomic, strong) KWHaveReceivedInOrderMatcher* matcher;
+
+// Test spy that is the subject of the matcher.
+@property (nonatomic, strong) Cruiser* matcherSubject;
+
+@end
+
+@implementation KWHaveReceivedAnythingBeforeSelectorMatcherTest
+
+- (void)setUp {
+    self.matcherSubject = [KWSpy spyForClass:[Cruiser class]];
+    self.matcher = [KWHaveReceivedInOrderMatcher matcherWithSubject:self.matcherSubject];
+}
+
+- (void)tearDown {
+    self.matcher = nil;
+    self.matcherSubject = nil;
+}
+
+- (void)testMatcherPassesIfSomeMessageReceivedBeforeReference {
+    // Execise
+    [self.matcherSubject fighterWithCallsign:@"Omega"];
+    [self.matcherSubject raiseShields];
+
+    // Verification
+    [self.matcher haveReceivedAnyMessagesBeforeFirst:@selector(raiseShields)];
+    STAssertTrue([self.matcher evaluate], @"Expected matcher to pass");
+}
+
+- (void)testMatcherFailsIfNoMessageReceivedBeforeReference {
+    // Execise
+    [self.matcherSubject raiseShields];
+    [self.matcherSubject fighterWithCallsign:@"Omega"];
+
+    // Verification
+    [self.matcher haveReceivedAnyMessagesBeforeFirst:@selector(raiseShields)];
+    STAssertFalse([self.matcher evaluate], @"Expected matcher to fail");
+}
+
+@end
+
+
+@interface KWHaveReceivedAnythingAfterSelectorMatcherTest : SenTestCase
+
+// Subject of tests
+@property (nonatomic, strong) KWHaveReceivedInOrderMatcher* matcher;
+
+// Test spy that is the subject of the matcher.
+@property (nonatomic, strong) Cruiser* matcherSubject;
+
+@end
+
+@implementation KWHaveReceivedAnythingAfterSelectorMatcherTest
+
+- (void)setUp {
+    self.matcherSubject = [KWSpy spyForClass:[Cruiser class]];
+    self.matcher = [KWHaveReceivedInOrderMatcher matcherWithSubject:self.matcherSubject];
+}
+
+- (void)tearDown {
+    self.matcher = nil;
+    self.matcherSubject = nil;
+}
+
+- (void)testMatcherPassesIfSomeMessageReceivedAfterReference {
+    // Execise
+    [self.matcherSubject raiseShields];
+    [self.matcherSubject fighterWithCallsign:@"Omega"];
+
+    // Verification
+    [self.matcher haveReceivedAnyMessagesAfterLast:@selector(raiseShields)];
+    STAssertTrue([self.matcher evaluate], @"Expected matcher to pass");
+}
+
+- (void)testMatcherFailsIfNoMessageReceivedAfterReference {
+    // Execise
+    [self.matcherSubject fighterWithCallsign:@"Omega"];
+    [self.matcherSubject raiseShields];
+
+    // Verification
+    [self.matcher haveReceivedAnyMessagesAfterLast:@selector(raiseShields)];
+    STAssertFalse([self.matcher evaluate], @"Expected matcher to fail");
+}
+
+@end
+
 
 
 
@@ -347,7 +440,7 @@ matcherReferenceSelector:(SEL)aMatcherReferenceSelector
 }
 
 - (void)setUp {
-    KWSpy* subject = [KWSpy spyForClass:[Cruiser class]];
+    KWSpy* subject = [KWSpy spyForClass:[Carrier class]];
     KWMatcher* matcher = [KWHaveReceivedInOrderMatcher matcherWithSubject:subject];
 
     // Execute the particular matcher method selected for the test

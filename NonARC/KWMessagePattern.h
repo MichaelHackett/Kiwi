@@ -29,6 +29,7 @@
 
 - (BOOL)matchesInvocation:(NSInvocation *)anInvocation;
 - (NSIndexSet *)indexesOfMatchingInvocations:(NSArray *)invocations;
+- (NSIndexSet *)indexesOfNonmatchingInvocations:(NSArray *)invocations;
 
 #pragma mark - Comparing Message Patterns
 
