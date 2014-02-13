@@ -373,6 +373,19 @@
                  @"Failure message does not include expected method name.");
 }
 
+- (void)testFailureMessageWhenMessageMatchedButNotArgumentsShouldIncludeTimesReceived {
+    [self.subject fighterWithCallsign:@"Viper 1"];
+    [self.subject fighterWithCallsign:@"Viper 3"];
+    [self.matcher haveReceived:@selector(fighterWithCallsign:)
+                 withArguments:@[@"Viper 2"]];
+
+    STAssertTrue([[self.matcher failureMessageForShould]
+                  containsString:@"<fighterWithCallsign:@\"Viper 1\">"] &&
+                 [[self.matcher failureMessageForShould]
+                  containsString:@"<fighterWithCallsign:@\"Viper 3\">"],
+                 @"Failure message does not report versions of message with other arguments.");
+}
+
 - (void)testDescriptionShouldIncludeNameOfMethodToMatch {
     SEL expectedSelector = @selector(raiseShields);
     [self.matcher haveReceived:expectedSelector];
