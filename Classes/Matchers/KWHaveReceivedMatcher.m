@@ -11,6 +11,7 @@
 #import "KWMessagePattern.h"
 #import "KWObjCUtilities.h"
 #import "KWSpy.h"
+#import "NSInvocation+OCMAdditions.h"
 
 //static NSString * const MatchVerifierKey = @"MatchVerifierKey";
 //static NSString * const CountTypeKey = @"CountTypeKey";
@@ -60,9 +61,7 @@
         [NSException raise:@"KWMatcherException" format:@"subject must be a KWSpy"];
         return NO;
     }
-    KWSpy *spy = (KWSpy *)self.subject;
-
-    NSUInteger matchCount = [[self.messagePattern indexesOfMatchingInvocations:spy.receivedInvocations] count];
+    NSUInteger matchCount = [self matchCount];
     switch (self.messageCountType) {
         case KWCountTypeExact:
             return matchCount == self.messageCount;
@@ -76,6 +75,28 @@
     }
 }
 
+- (NSIndexSet *)indexesOfMatchingInvocations {
+    if (![self.subject isKindOfClass:[KWSpy class]]) {
+        return [NSIndexSet indexSet];
+    }
+    KWSpy *spy = (KWSpy *)self.subject;
+    return [self.messagePattern indexesOfMatchingInvocations:spy.receivedInvocations];
+}
+
+- (NSUInteger)matchCount {
+    return [[self indexesOfMatchingInvocations] count];
+}
+
+- (NSIndexSet *)indexesOfInvocationsMatchingOnlyTheSelector {
+    if (![self.subject isKindOfClass:[KWSpy class]]) {
+        return [NSIndexSet indexSet];
+    }
+
+    KWSpy *spy = (KWSpy *)self.subject;
+    KWMessagePattern *selectorOnlyPattern =
+        [KWMessagePattern messagePatternWithSelector:self.messagePattern.selector];
+    return [selectorOnlyPattern indexesOfMatchingInvocations:spy.receivedInvocations];
+}
 
 #pragma mark - Messages
 
@@ -91,16 +112,39 @@
     if (![self.subject isKindOfClass:[KWSpy class]]) {
         return @"unknown times";
     }
-    KWSpy *spy = (KWSpy *)self.subject;
-    NSUInteger receivedCount = [[self.messagePattern indexesOfMatchingInvocations:spy.receivedInvocations] count];
-    return [KWFormatter phraseForCount:receivedCount];
+    return [KWFormatter phraseForCount:[self matchCount]];
 }
 
 - (NSString *)failureMessageForShould {
-    return [NSString stringWithFormat:@"expected subject to have received -%@ %@, but received it %@",
-                                      [self expectedMessagePatternAsString],
-                                      [self expectedCountPhrase],
-                                      [self receivedCountPhrase]];
+    NSMutableString *failureMessage =
+        [NSMutableString stringWithFormat:@"expected subject to have received -%@ %@, but ",
+         [self expectedMessagePatternAsString],
+         [self expectedCountPhrase]];
+
+    if (![self.subject isKindOfClass:[KWSpy class]]) {
+        [failureMessage appendString:@"it was not a test spy"];
+    } else {
+        [failureMessage appendFormat:@" received it %@", [self receivedCountPhrase]];
+
+        // If a selector-only matcher matches more methods, report the non
+        // If any messages received, report the non-matching arguments in failure message.
+        NSMutableIndexSet *selectorOnlyMatches =
+            [[self indexesOfInvocationsMatchingOnlyTheSelector] mutableCopy];
+        NSIndexSet *fullMatches = [self indexesOfMatchingInvocations];
+        [selectorOnlyMatches removeIndexes:fullMatches];
+        if ([selectorOnlyMatches count] > 0) {
+            [failureMessage appendString:@", and instead received: "];
+            KWSpy *spy = (KWSpy *)self.subject;
+            NSMutableArray* invocationStrings = [NSMutableArray array];
+            [selectorOnlyMatches enumerateIndexesUsingBlock:^(NSUInteger index, BOOL *stop) {
+                [invocationStrings addObject:[NSString stringWithFormat:@"<%@>",
+                 [[spy.receivedInvocations objectAtIndex:index] invocationDescription]]];
+            }];
+            [failureMessage appendString:[invocationStrings componentsJoinedByString:@", "]];
+        }
+    }
+
+    return [NSString stringWithString:failureMessage];
 }
 
 - (NSString *)description {
