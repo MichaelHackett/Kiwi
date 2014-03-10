@@ -7,6 +7,7 @@
 #import "Kiwi.h"
 #import "KiwiTestConfiguration.h"
 #import "KWWorkarounds.h"
+#import <objc/runtime.h>
 #import "TestClasses.h"
 
 #if KW_TESTS_ENABLED
@@ -56,6 +57,17 @@
     STAssertEquals([[messagePattern indexesOfMatchingInvocations:[self.spy receivedInvocations]] count],
                    (NSUInteger)1,
                    @"expected spy to report receiving sent message");
+}
+
+- (void)testShouldNotRetainTargetOfInvocations {
+    id weakSpy = nil;
+    @autoreleasepool {
+        objc_storeWeak(&weakSpy, [KWSpy spyForClass:self.mockedClass]);
+        [weakSpy computeParsecs];
+    }
+    id spyOrNil = weakSpy;
+    objc_storeWeak(&weakSpy, nil);
+    STAssertNil(spyOrNil, @"expected spy to have been deallocated");
 }
 
 - (void)testResetShouldClearAllRecordedInvocations {

@@ -1,9 +1,14 @@
-// Copyright 2013 Michael Hackett. All rights reserved.
+// Copyright 2013-4 Michael Hackett. All rights reserved.
 
 #import "KWSpy.h"
 #import "KWInvocationCopier.h"
 #import "KWMessagePattern.h"
+#import "KWWeakRef.h"
 #import "NSArray+KiwiMatchAdditions.h"
+
+
+// Internal helper functions
+static void replaceTargetWithWeakRef(NSInvocation *invocation);
 
 
 // NOTE: The mockedClass property does not appear to be used within Kiwi
@@ -16,17 +21,17 @@
 // need to look at recommended practices to see if anyone uses -class
 // directly.
 
-@interface KWSpy () {
+//@interface KWSpy ()
+//@property (nonatomic, assign, readonly) Class mockedClass;
+//@end
+
+
+@implementation KWSpy
+{
     // array of NSInvocations received by spy
     NSMutableArray* _receivedInvocations;
 }
 
-//@property (nonatomic, assign, readonly) Class mockedClass;
-
-@end
-
-
-@implementation KWSpy
 
 #pragma mark - Initializing
 
@@ -122,9 +127,20 @@
 // this will affect the recorded argument values. Argument tests should be
 // limited to the argument value itself (a scalar value or an object
 // pointer), unless the objects are known to be immutable.
+//
+// The target object reference (which will be the spy itself) is wrapped in
+// a "weak reference" object to avoid a retain loop. It is still possible
+// to create a loop if the spy is passed as a method argument, or is held
+// in a strong reference by any of the objects in the arguments, but this
+// would be almost impossible to prevent and likely fairly rare in
+// practice, so hopefully the occasional leak will in a spec will not be
+// too detrimental. If this is not acceptable, the alternative is to
+// record invocations in the Example and clear them out at the end of
+// the example.
 
 - (void)recordInvocation:(NSInvocation *)anInvocation {
     NSInvocation *invocationCopy = KWCopyInvocation(anInvocation);
+    replaceTargetWithWeakRef(invocationCopy);
     [invocationCopy retainArguments];
     [_receivedInvocations addObject:invocationCopy];
 }
@@ -142,3 +158,11 @@
 }
 
 @end
+
+
+
+#pragma mark - Internal helper functions
+
+void replaceTargetWithWeakRef(NSInvocation *invocation) {
+    invocation.target = [KWWeakRef weakRefTo:invocation.target];
+}
