@@ -148,6 +148,12 @@
 		4C54379217D663D00037D65E /* KWHaveReceivedInOrderMatcher.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4C54378517D651320037D65E /* KWHaveReceivedInOrderMatcher.h */; };
 		4C54379317D663F40037D65E /* NSArray+KiwiMatchAdditions.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4C4940331798DD6C004FECB4 /* NSArray+KiwiMatchAdditions.h */; };
 		4C5A8CB21781E1E800712260 /* KWInvocationCopierTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C5A8CB11781E1E800712260 /* KWInvocationCopierTest.m */; };
+		4C5D8C2818C8BBF000E819C1 /* KWWeakRef.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C5D8C2618C8BBF000E819C1 /* KWWeakRef.h */; };
+		4C5D8C2918C8BBF000E819C1 /* KWWeakRef.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C5D8C2718C8BBF000E819C1 /* KWWeakRef.m */; };
+		4C5D8C2A18C8C23300E819C1 /* KWWeakRef.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C5D8C2718C8BBF000E819C1 /* KWWeakRef.m */; };
+		4C5D8C2B18C8C23400E819C1 /* KWWeakRef.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C5D8C2718C8BBF000E819C1 /* KWWeakRef.m */; };
+		4C5D8C2C18C8C24400E819C1 /* KWWeakRef.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C5D8C2618C8BBF000E819C1 /* KWWeakRef.h */; };
+		4C5D8C2D18C8C24600E819C1 /* KWWeakRef.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C5D8C2618C8BBF000E819C1 /* KWWeakRef.h */; };
 		4C5FCABF178C85D800D35EE1 /* KWMaxMethodArgumentLengthTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C5FCABE178C85D700D35EE1 /* KWMaxMethodArgumentLengthTest.m */; };
 		4C5FCAC1178DD15600D35EE1 /* KWMethodSignatureAdditionsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C5FCAC0178DD15600D35EE1 /* KWMethodSignatureAdditionsTest.m */; };
 		4C6D1FBE17A059A900D6F431 /* KWHaveReceivedMatcher.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4C08F3CA1792FDD700C9C85D /* KWHaveReceivedMatcher.h */; };
@@ -1099,6 +1105,8 @@
 		4C54378D17D660F60037D65E /* NSString+KWSimpleContainmentTestAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSString+KWSimpleContainmentTestAdditions.m"; path = "Test Classes/NSString+KWSimpleContainmentTestAdditions.m"; sourceTree = "<group>"; };
 		4C54379017D662DE0037D65E /* KWHaveReceivedInOrderMatcherTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KWHaveReceivedInOrderMatcherTest.m; sourceTree = "<group>"; };
 		4C5A8CB11781E1E800712260 /* KWInvocationCopierTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KWInvocationCopierTest.m; sourceTree = "<group>"; };
+		4C5D8C2618C8BBF000E819C1 /* KWWeakRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KWWeakRef.h; sourceTree = "<group>"; };
+		4C5D8C2718C8BBF000E819C1 /* KWWeakRef.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KWWeakRef.m; sourceTree = "<group>"; };
 		4C5FCABE178C85D700D35EE1 /* KWMaxMethodArgumentLengthTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KWMaxMethodArgumentLengthTest.m; sourceTree = "<group>"; };
 		4C5FCAC0178DD15600D35EE1 /* KWMethodSignatureAdditionsTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KWMethodSignatureAdditionsTest.m; sourceTree = "<group>"; };
 		4CA755561837EE40006D7618 /* KWHaveReceivedAnyMessageMatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KWHaveReceivedAnyMessageMatcher.h; sourceTree = "<group>"; };
@@ -1553,6 +1561,8 @@
 				9F982CC216A802920030A0B1 /* KWStringUtilities.m */,
 				9F982CC916A802920030A0B1 /* KWValue.h */,
 				9F982CCA16A802920030A0B1 /* KWValue.m */,
+				4C5D8C2618C8BBF000E819C1 /* KWWeakRef.h */,
+				4C5D8C2718C8BBF000E819C1 /* KWWeakRef.m */,
 				9F982CCC16A802920030A0B1 /* KWWorkarounds.h */,
 				9F982CCD16A802920030A0B1 /* KWWorkarounds.m */,
 				9F982C9916A802920030A0B1 /* KWMatcher.h */,
@@ -2003,6 +2013,7 @@
 				4E3C5DB31716C34900835B62 /* KWRegularExpressionPatternMatcher.h in Headers */,
 				4E7659AC172DAC8E00105B93 /* KWContainStringMatcher.h in Headers */,
 				C533F7D417462CAA000CAB02 /* KWSymbolicator.h in Headers */,
+				4C5D8C2C18C8C24400E819C1 /* KWWeakRef.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2107,6 +2118,7 @@
 				DA084DBC17E3838100592D5A /* KWSymbolicator.h in Headers */,
 				DA084DBE17E3838100592D5A /* Kiwi-Prefix.pch in Headers */,
 				4CA755591837EE40006D7618 /* KWHaveReceivedAnyMessageMatcher.h in Headers */,
+				4C5D8C2D18C8C24600E819C1 /* KWWeakRef.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2217,6 +2229,7 @@
 				C533F7D317462CAA000CAB02 /* KWSymbolicator.h in Headers */,
 				37828763177F860B00BCD40F /* Kiwi-Prefix.pch in Headers */,
 				4A71048017CC016600A7B718 /* KWLetNode.h in Headers */,
+				4C5D8C2818C8BBF000E819C1 /* KWWeakRef.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2524,6 +2537,7 @@
 				C533F7D617462CAA000CAB02 /* KWSymbolicator.m in Sources */,
 				4A8699BA17E9B3CF007F250E /* KWLetNode.m in Sources */,
 				4CA7555C1837EE52006D7618 /* KWHaveReceivedAnyMessageMatcher.m in Sources */,
+				4C5D8C2A18C8C23300E819C1 /* KWWeakRef.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2620,6 +2634,7 @@
 				DA084E0D17E3838100592D5A /* KWContainStringMatcher.m in Sources */,
 				DA084E0E17E3838100592D5A /* KWSymbolicator.m in Sources */,
 				4CA7555D1837EE52006D7618 /* KWHaveReceivedAnyMessageMatcher.m in Sources */,
+				4C5D8C2B18C8C23400E819C1 /* KWWeakRef.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2714,6 +2729,7 @@
 				C533F7D517462CAA000CAB02 /* KWSymbolicator.m in Sources */,
 				4A8699B917E9B3CE007F250E /* KWLetNode.m in Sources */,
 				4CA7555B1837EE52006D7618 /* KWHaveReceivedAnyMessageMatcher.m in Sources */,
+				4C5D8C2918C8BBF000E819C1 /* KWWeakRef.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
