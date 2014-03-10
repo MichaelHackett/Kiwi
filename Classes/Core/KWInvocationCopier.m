@@ -41,8 +41,8 @@ NSUInteger KWMaxMethodArgumentLength(NSMethodSignature* methodSignature) {
 
 NS_RETURNS_RETAINED
 NSInvocation* KWCopyInvocation(NSInvocation* original) {
-    NSMethodSignature* methodSignature = original.methodSignature;
-    NSInvocation* copy =
+    NSMethodSignature *methodSignature = original.methodSignature;
+    NSInvocation *copy =
         [NSInvocation invocationWithMethodSignature:methodSignature];
     [copy setTarget:[original target]];
     [copy setSelector:[original selector]];
@@ -54,7 +54,7 @@ NSInvocation* KWCopyInvocation(NSInvocation* original) {
     }
 
     if (maxArgLength > 0) {  // skip if void method
-        NSMutableData* dataBuffer = [NSMutableData dataWithLength:maxArgLength];
+        NSMutableData *dataBuffer = [NSMutableData dataWithLength:maxArgLength];
         void* argBuffer = [dataBuffer mutableBytes];
         NSUInteger argumentCount = [methodSignature numberOfMessageArguments];
         for (NSUInteger index = 0; index < argumentCount; index += 1) {

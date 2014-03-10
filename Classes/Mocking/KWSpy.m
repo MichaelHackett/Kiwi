@@ -3,12 +3,14 @@
 #import "KWSpy.h"
 #import "KWInvocationCopier.h"
 #import "KWMessagePattern.h"
+#import "KWObjCUtilities.h"
 #import "KWWeakRef.h"
 #import "NSArray+KiwiMatchAdditions.h"
 
 
 // Internal helper functions
 static void replaceTargetWithWeakRef(NSInvocation *invocation);
+static void copyBlockArguments(NSInvocation *invocation);
 
 
 // NOTE: The mockedClass property does not appear to be used within Kiwi
@@ -141,6 +143,7 @@ static void replaceTargetWithWeakRef(NSInvocation *invocation);
 - (void)recordInvocation:(NSInvocation *)anInvocation {
     NSInvocation *invocationCopy = KWCopyInvocation(anInvocation);
     replaceTargetWithWeakRef(invocationCopy);
+    copyBlockArguments(invocationCopy);
     [invocationCopy retainArguments];
     [_receivedInvocations addObject:invocationCopy];
 }
@@ -165,4 +168,21 @@ static void replaceTargetWithWeakRef(NSInvocation *invocation);
 
 void replaceTargetWithWeakRef(NSInvocation *invocation) {
     invocation.target = [KWWeakRef weakRefTo:invocation.target];
+}
+
+// The block copies are autoreleased, to prevent a leak when they are
+// retained by the invocation. Ensure there is no autorelease-pool block
+// separating the call to this function and asking the invocation to retain
+// the arguments, otherwise the block objects may be deallocated.
+void copyBlockArguments(NSInvocation *invocation) {
+    NSMethodSignature *methodSig = invocation.methodSignature;
+    NSUInteger argCount = [methodSig numberOfArguments];
+    for (NSUInteger argIndex = 2; argIndex < argCount; argIndex++) {
+        if (KWObjCTypeIsBlock([methodSig getArgumentTypeAtIndex:argIndex])) {
+            __unsafe_unretained id origBlock;
+            [invocation getArgument:&origBlock atIndex:argIndex];
+            __autoreleasing id blockCopy = [origBlock copy];
+            [invocation setArgument:(void *)&blockCopy atIndex:argIndex];
+        }
+    }
 }

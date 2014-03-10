@@ -7,6 +7,7 @@
 #import "Kiwi.h"
 #import "KiwiTestConfiguration.h"
 #import "KWWorkarounds.h"
+#import "NSInvocation+OCMAdditions.h"
 #import <objc/runtime.h>
 #import "TestClasses.h"
 
@@ -68,6 +69,30 @@
     id spyOrNil = weakSpy;
     objc_storeWeak(&weakSpy, nil);
     STAssertNil(spyOrNil, @"expected spy to have been deallocated");
+}
+
+- (void)testShouldCopyBlockArguments {
+    __block NSString *blockResult = nil;
+    void (^handler)(void) = ^{ blockResult = @"finished"; };
+
+    @autoreleasepool {
+        // Setup:
+        id spy = [[KWSpy alloc] initForClass:[Robot class]];
+
+        // Exercise
+        [spy speak:@"Hello" afterDelay:1 whenDone:handler];
+
+        // Verification:
+        void (^capturedArgument)(void) =
+            [[[spy receivedInvocations] objectAtIndex:0] getArgumentAtIndexAsObject:4];
+        capturedArgument();
+        STAssertEqualObjects(blockResult, @"finished",
+                             @"expected argument to be equivalent to block passed to spy");
+        STAssertTrue(capturedArgument != handler, @"expected block argument to be a copy");
+
+        // Teardown:
+        [spy release];
+    }
 }
 
 - (void)testResetShouldClearAllRecordedInvocations {
