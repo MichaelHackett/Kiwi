@@ -23,7 +23,9 @@
         @"haveReceived:beforeFirst:",
         @"haveReceived:beforeLast:",
         @"haveReceived:afterFirst:",
-        @"haveReceived:afterLast:"
+        @"haveReceived:afterLast:",
+        @"haveReceivedAnyMessagesBeforeFirst:",
+        @"haveReceivedAnyMessagesAfterLast:"
     ];
 
     STAssertEqualObjects([matcherStrings sortedArrayUsingSelector:@selector(compare:)],

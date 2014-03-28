@@ -41,7 +41,9 @@ typedef enum {
         @"haveReceived:beforeFirst:",
         @"haveReceived:beforeLast:",
         @"haveReceived:afterFirst:",
-        @"haveReceived:afterLast:"
+        @"haveReceived:afterLast:",
+        @"haveReceivedAnyMessagesBeforeFirst:",
+        @"haveReceivedAnyMessagesAfterLast:"
     ];
 }
 
