@@ -7,7 +7,7 @@
 // but the frame is constructed anew, with none of the argument values
 // being copied over. KWCopyInvocation is a utility function that provides
 // a full duplicate of an NSInvocation that can be safely retained and
-// which will be modified or reused by the runtime or program code.
+// which will not be modified or reused by the runtime or program code.
 
 
 #import "KWInvocationCopier.h"
