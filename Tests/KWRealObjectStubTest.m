@@ -53,6 +53,12 @@
     STAssertEquals(fighter, [cruiser fighterWithCallsign:@"Foo"], @"expected method to be stubbed");
 }
 
+- (void)testItShouldStubInstanceMethodsThatAreUsedInTheObjectsHashMethod {
+    Cruiser *cruiser = [Cruiser cruiser];
+    [cruiser stub:@selector(crewComplement) andReturn:theValue(5)];
+    STAssertEquals(5U, cruiser.crewComplement, @"expected to be able to stub -[Cruiser crewComplement], which is used in -[Cruiser hash]");
+}
+
 - (void)testItShouldClearStubbedRecursiveMethods {
     NSUInteger starHash = 8 + 4 + 2 + 1;
     Cruiser *cruiser = [Cruiser cruiserWithCallsign:@"Galactica"];
@@ -87,7 +93,7 @@
 - (void)testItShouldStubTheNextMessage {
     NSString *callsign = @"Galactica";
     Cruiser *cruiser = [Cruiser cruiserWithCallsign:@"Avenger"];
-    [[cruiser stubAndReturn:callsign] callsign];
+    [cruiser stub:@selector(callsign) andReturn:callsign];
     STAssertEqualObjects([cruiser callsign], callsign, @"expected method to be stubbed");
 }
 
@@ -95,7 +101,7 @@
     NSString *callsign = @"Galactica";
     NSString *secondCallsign = @"Andromeda";
     Cruiser *cruiser = [Cruiser cruiserWithCallsign:@"Avenger"];
-    [[cruiser stubAndReturn: callsign times:[KWValue valueWithInt:2] afterThatReturn:secondCallsign] callsign];
+    [cruiser stub:@selector(callsign) andReturn:callsign times:@2 afterThatReturn:secondCallsign];
     STAssertEqualObjects([cruiser callsign], callsign, @"expected method to be stubbed");
     STAssertEqualObjects([cruiser callsign], callsign, @"expected method to be stubbed");
     STAssertEqualObjects([cruiser callsign], secondCallsign, @"expected method to be stubbed and change return value");
