@@ -205,10 +205,10 @@
     NSUInteger actualArgumentCount = [argumentMatchers count];
     if (actualArgumentCount < messageArgumentCount) {
         [NSException raise:NSInvalidArgumentException
-                    format:@"%@ message takes %u argument(s), but only %u argument matcher(s) given",
+                    format:@"%@ message takes %lu argument(s), but only %lu argument matcher(s) given",
                     NSStringFromSelector(aSelector),
-                    messageArgumentCount,
-                    actualArgumentCount];
+                    (unsigned long)messageArgumentCount,
+                    (unsigned long)actualArgumentCount];
     }
     KWMessagePattern *messagePattern =
         [KWMessagePattern messagePatternWithSelector:aSelector
