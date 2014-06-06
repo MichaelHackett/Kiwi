@@ -1,1 +1,7 @@
 #import <Foundation/Foundation.h>
+#import "FoundationCollectionSubscriptSupport.h"
+// This macro was added to iOS6 SDK; default to non-typesafe version if using
+// older SDK.
+#ifndef NS_ENUM
+#define NS_ENUM(_type, _name) _type _name; enum
+#endif

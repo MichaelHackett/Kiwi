@@ -14,6 +14,17 @@
 #import "KWCallSite.h"
 #import "KWSpec.h"
 
+// Apple changed the declaration of imp_implementationWithBlock in iOS6/OSX.?
+// so add a wrapper that supports both forms.
+static IMP implementationWithBlock(id block) {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 60000
+    return imp_implementationWithBlock(block);
+#else
+    return imp_implementationWithBlock((__bridge void *)block);
+#endif
+}
+
+
 @implementation SenTestSuite (KiwiAdditions)
 
 + (void)initialize {
@@ -32,19 +43,19 @@
     Method origMethod = class_getClassMethod(c, origSEL);
     class_addMethod(c, newSEL, method_getImplementation(origMethod), method_getTypeEncoding(origMethod));
 
-    IMP kw_testSuiteForBundlePath = imp_implementationWithBlock(^(id _self, NSString *path){
+    IMP kw_testSuiteForBundlePath = implementationWithBlock(^(id _self, NSString *path){
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         SenTestSuite *suite = [_self performSelector:newSEL withObject:path];
 #pragma clang diagnostic pop
 
         Method setUpMethod = class_getInstanceMethod([suite class], @selector(setUp));
-        method_setImplementation(setUpMethod, imp_implementationWithBlock(^(id _self){
+        method_setImplementation(setUpMethod, implementationWithBlock(^(id _self){
             NSLog(@"SETUP TEST SUITE %@", _self);
         }));
 
         Method tearDownMethod = class_getInstanceMethod([suite class], @selector(tearDown));
-        method_setImplementation(tearDownMethod, imp_implementationWithBlock(^(id _self){
+        method_setImplementation(tearDownMethod, implementationWithBlock(^(id _self){
             NSLog(@"TEARDOWN TEST SUITE %@", _self);
         }));
 
@@ -63,7 +74,7 @@
     Method origMethod = class_getClassMethod(c, origSEL);
     class_addMethod(c, newSEL, method_getImplementation(origMethod), method_getTypeEncoding(origMethod)) ;
 
-    IMP focusedSuite = imp_implementationWithBlock(^(id _self, Class aClass){
+    IMP focusedSuite = implementationWithBlock(^(id _self, Class aClass){
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         if ([[KWExampleSuiteBuilder sharedExampleSuiteBuilder] isFocused] &&

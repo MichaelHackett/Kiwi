@@ -26,7 +26,7 @@ static NSString * const ChangeStubValueAfterTimesKey = @"ChangeStubValueAfterTim
 
 @property (nonatomic, readonly) NSMutableArray *stubs;
 @property (nonatomic, readonly) NSMutableArray *expectedMessagePatterns;
-@property (nonatomic, readonly) NSMapTable *messageSpies;
+@property (nonatomic, readonly) NSMutableDictionary *messageSpies;
 
 @end
 
@@ -94,7 +94,7 @@ static NSString * const ChangeStubValueAfterTimesKey = @"ChangeStubValueAfterTim
         _mockedProtocol = aProtocol;
         _stubs = [[NSMutableArray alloc] init];
         _expectedMessagePatterns = [[NSMutableArray alloc] init];
-        _messageSpies = [NSMapTable mapTableWithKeyOptions:NSMapTableStrongMemory valueOptions:NSMapTableStrongMemory];
+        _messageSpies = [[NSMutableDictionary alloc] init];
     }
 
     return self;
