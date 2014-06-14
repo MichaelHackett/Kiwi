@@ -17,9 +17,14 @@
 #pragma mark - Properties
 
 @synthesize notifiedOfEndOfExample;
+@synthesize callSite;
+@dynamic subject;
 
 #pragma mark - Setting Subjects
 
+- (id)subject {
+    return nil;
+}
 - (void)setSubject:(id)anObject {
 }
 
